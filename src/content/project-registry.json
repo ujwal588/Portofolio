@@ -1,0 +1,44 @@
+{
+  "owner": "ujwal588",
+  "projects": [
+    {
+      "repository": "Mini-GPT",
+      "visible": true,
+      "featured": true,
+      "technical_exploration": true,
+      "display_order": 1,
+      "custom_title": "Mini-GPT",
+      "custom_description": "A decoder-only transformer built from scratch, with self-attention and positional encodings.",
+      "technical_note": "Includes multi-head self-attention, positional encodings, feed-forward layers, and next-token prediction.",
+      "category": "Language models",
+      "status": "Built",
+      "technologies": ["Python", "PyTorch", "Transformers"]
+    },
+    {
+      "repository": "Generative-Adversarial-Model-GAN-",
+      "visible": true,
+      "featured": true,
+      "technical_exploration": true,
+      "display_order": 2,
+      "custom_title": "Deep Convolutional GAN",
+      "custom_description": "A DCGAN with generator and discriminator networks for synthetic image generation.",
+      "technical_note": "The generator and discriminator train adversarially. Evaluation includes generated-sample review and FID experiments.",
+      "category": "Generative models",
+      "status": "In progress",
+      "technologies": ["Python", "PyTorch", "DCGAN"]
+    },
+    {
+      "repository": "Autoencoder-for-anomaly-detection",
+      "visible": true,
+      "featured": true,
+      "technical_exploration": true,
+      "display_order": 3,
+      "custom_title": "Autoencoder Anomaly Detection",
+      "custom_description": "An autoencoder that flags anomalies through reconstruction error.",
+      "technical_note": "Uses ReLU and Sigmoid activations; reconstruction error is the anomaly signal.",
+      "category": "Unsupervised learning",
+      "status": "Built",
+      "technologies": ["Python", "Autoencoder", "Anomaly detection"]
+    }
+  ]
+}
