@@ -1,0 +1,38 @@
+{
+  "lastSynced": null,
+  "repositories": [
+    {
+      "repository": "Mini-GPT",
+      "name": "Mini-GPT",
+      "description": "Implementation of a decoder only transformer model from mini-gpt and other exampler",
+      "url": "https://github.com/ujwal588/Mini-GPT",
+      "language": "Python",
+      "topics": [],
+      "stars": 0,
+      "forks": 0,
+      "updatedAt": "2026-10-07T17:46:13Z"
+    },
+    {
+      "repository": "Generative-Adversarial-Model-GAN-",
+      "name": "Generative-Adversarial-Model-GAN-",
+      "description": "Deep Convolutional GAN (DCGAN) implementation for generating synthetic images. Built with PyTorch featuring generator-discriminator adversarial training.",
+      "url": "https://github.com/ujwal588/Generative-Adversarial-Model-GAN-",
+      "language": null,
+      "topics": [],
+      "stars": 0,
+      "forks": 0,
+      "updatedAt": "2026-08-24T19:14:13Z"
+    },
+    {
+      "repository": "Autoencoder-for-anomaly-detection",
+      "name": "Autoencoder-for-anomaly-detection",
+      "description": "Autoencoder implementation for unsupervised anomaly detection. Built with neural networks using ReLU and Sigmoid activations for reconstruction-based outlier identification.",
+      "url": "https://github.com/ujwal588/Autoencoder-for-anomaly-detection",
+      "language": "Python",
+      "topics": [],
+      "stars": 0,
+      "forks": 0,
+      "updatedAt": "2026-09-02T21:31:14Z"
+    }
+  ]
+}
