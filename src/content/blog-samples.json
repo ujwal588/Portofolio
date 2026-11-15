@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Building a Small Language Model from Scratch",
+    "category": "TRANSFORMERS",
+    "excerpt": "A sample walkthrough of tokenization, self-attention, and the choices behind a compact decoder-only model."
+  },
+  {
+    "title": "What an Autoencoder Learns About Anomalies",
+    "category": "UNSUPERVISED LEARNING",
+    "excerpt": "A short visual guide to reconstruction error and using it to flag unusual input data."
+  },
+  {
+    "title": "Training a DCGAN: Generator vs. Discriminator",
+    "category": "GENERATIVE MODELS",
+    "excerpt": "An example project note on adversarial training, image samples, and evaluating generative output."
+  }
+]
