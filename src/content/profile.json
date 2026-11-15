@@ -1,0 +1,31 @@
+{
+  "displayName": "Ujwal Boosala",
+  "handle": "ujwal588",
+  "headline": "Computer Science · AI & ML",
+  "intro": "Computer Science undergraduate focused on machine learning and software development. I build hands-on projects to understand how models work, from training to evaluation.",
+  "location": "",
+  "email": "boosalaujwal@gmail.com",
+  "githubUrl": "https://github.com/ujwal588",
+  "linkedinUrl": "https://www.linkedin.com/in/ujwal07",
+  "resumePath": "/resume.pdf",
+  "avatarUrl": "https://avatars.githubusercontent.com/u/172836503?v=4",
+  "education": [
+    {
+      "institution": "Lovely Professional University",
+      "qualification": "B.Tech, Computer Science (AI & ML)",
+      "dates": "2024–present · CGPA 8.54"
+    }
+  ],
+  "training": [
+    {
+      "name": "Data Structures & Algorithms",
+      "provider": "Programming Pathshala",
+      "date": "Jun–Aug 2026 · Certificate"
+    }
+  ],
+  "achievements": [
+    { "title": "Smart India Hackathon 2025", "detail": "Shortlisted for university-level Round 2." },
+    { "title": "Prosthetic distribution drive", "detail": "Volunteer · Narayan Seva Sansthan · 2024." }
+  ],
+  "leadership": "Class Representative, Lovely Professional University · Jun–Jul 2025 · Liaison for a 60+ student cohort."
+}
