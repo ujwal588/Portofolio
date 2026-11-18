@@ -237,6 +237,8 @@ body{font-size:14px}
 .content-panel::after{content:"";position:absolute;inset:1px;z-index:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 1px 0 #ffffffb8,inset 1px 0 0 #ffffff70}
 .content-panel>*{position:relative;z-index:1}
 .fuel-track.is-full .fuel-window{top:3px}
+.fuel-track{cursor:grab}
+.fuel-track:active{cursor:grabbing}
 @media(max-width:600px){.fuel-track.is-full .fuel-window{top:3px}}
 @keyframes ambient-gear-turn{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.ambient-gear-rotor{animation-play-state:paused}}
