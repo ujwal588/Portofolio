@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { ArrowRight, ArrowUpRight, Download, Eye } from "lucide-react";
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import { ArrowRight, ArrowUp, ArrowUpRight, Download, Eye } from "lucide-react";
 import profile from "./content/profile.json";
 import skills from "./content/skills.json";
 import registry from "./content/project-registry.json";
@@ -62,6 +62,112 @@ function ContactLinks() {
 
 function SkillsSection() {
   return <section className="skills-section" id="skills"><div className="section-head"><div><p className="eyebrow">TOOLS I USE</p><h2>Skills</h2></div></div><div className="skill-groups">{(skills as Array<{ group: string; items: string[] }>).map((group) => <div className="skill-group" key={group.group}><h3>{group.group}</h3><div className="skill-icons">{group.items.map((item) => <IconTile name={item} key={item} large />)}</div></div>)}</div></section>;
+}
+
+function ScrollFuelGauge() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [refilling, setRefilling] = useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const refillTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const root = document.documentElement;
+        const maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - window.innerHeight);
+        setScrollProgress(maxScroll === 0 ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll)));
+      });
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  useEffect(() => () => {
+    if (refillTimer.current !== null) window.clearTimeout(refillTimer.current);
+  }, []);
+
+  const scrollToTrackPosition = (clientY: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const bounds = track.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientY - bounds.top) / bounds.height));
+    const root = document.documentElement;
+    const maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - window.innerHeight);
+    window.scrollTo({ top: maxScroll * ratio, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+
+  const onTrackKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.shiftKey ? 0.2 : 0.06;
+    let next: number | null = null;
+    if (event.key === "ArrowUp" || event.key === "PageUp") next = scrollProgress - step;
+    if (event.key === "ArrowDown" || event.key === "PageDown") next = scrollProgress + step;
+    if (event.key === "Home") next = 0;
+    if (event.key === "End") next = 1;
+    if (next === null) return;
+    event.preventDefault();
+    const root = document.documentElement;
+    const maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - window.innerHeight);
+    window.scrollTo({ top: maxScroll * Math.min(1, Math.max(0, next)), behavior: "smooth" });
+  };
+
+  const refill = () => {
+    if (refillTimer.current !== null) window.clearTimeout(refillTimer.current);
+    setRefilling(true);
+    window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    refillTimer.current = window.setTimeout(() => setRefilling(false), 1100);
+  };
+
+  const fuel = Math.round((1 - scrollProgress) * 100);
+  return <aside className={`fuel-control${refilling ? " is-refilling" : ""}`} aria-label="Page scroll fuel gauge">
+    <svg className="fuel-wire" viewBox="0 0 72 280" preserveAspectRatio="none" aria-hidden="true">
+      <path className="fuel-wire-shadow" d="M48 168v20c0 14 12 13 12 26v13H35v9" />
+      <path className="fuel-wire-line" d="M48 168v20c0 14 12 13 12 26v13H35v9" />
+      <circle className="fuel-wire-joint" cx="48" cy="168" r="3" />
+    </svg>
+    <span className="fuel-caption" aria-hidden="true">FUEL</span>
+    <div
+      className="fuel-track"
+      ref={trackRef}
+      role="scrollbar"
+      aria-label="Page scroll position"
+      aria-controls="root"
+      aria-orientation="vertical"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(scrollProgress * 100)}
+      aria-valuetext={`${fuel}% fuel remaining`}
+      tabIndex={0}
+      onKeyDown={onTrackKeyDown}
+      onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); scrollToTrackPosition(event.clientY); }}
+      onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) scrollToTrackPosition(event.clientY); }}
+    >
+      <span className="fuel-scale fuel-scale-full" aria-hidden="true">F</span>
+      <span className="fuel-scale fuel-scale-half" aria-hidden="true">½</span>
+      <span className="fuel-scale fuel-scale-empty" aria-hidden="true">E</span>
+      <span className="fuel-window" aria-hidden="true">
+        <span className="fuel-liquid" style={{ height: `${fuel}%` }}>
+          <span className="fuel-wave" />
+          <span className="fuel-bubble fuel-bubble-one" />
+          <span className="fuel-bubble fuel-bubble-two" />
+        </span>
+        <span className="fuel-glint" />
+      </span>
+      <span className="fuel-value" aria-hidden="true">{fuel}%</span>
+    </div>
+    <button type="button" className="fuel-refill" onClick={refill} disabled={scrollProgress < 0.005} aria-label="Refill tank and scroll to the top" title="Refill and return to top">
+      <ArrowUp size={17} strokeWidth={2.2} />
+    </button>
+    <span className="fuel-refill-label" aria-hidden="true">REFILL</span>
+  </aside>;
 }
 
 function SystemsPage({ onSystemsClick, transitioning = false }: { onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
@@ -180,8 +286,8 @@ export default function App() {
     setTransitioning(false);
   };
   const header = <Header page={page} onSystemsClick={beginSystemsTransition} transitioning={transitioning} />;
-  if (page === "/systems" || page === "/explore") return <><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}</>;
-  if (page === "/blog") return <><div className="site">{header}<main className="explore-page blog-page"><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card card-${index % 3}`} key={post.title}><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}</>;
+  if (page === "/systems" || page === "/explore") return <><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollFuelGauge /></>;
+  if (page === "/blog") return <><div className="site">{header}<main className="explore-page blog-page"><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card card-${index % 3}`} key={post.title}><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollFuelGauge /></>;
 
   return <><div className="site">{header}<main id="top">
     <section className="hero">
@@ -195,5 +301,5 @@ export default function App() {
     <section className="highlights"><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span key={item.title}>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span key={item.name}>{item.name} · {item.provider}</span>)}</div></section>
 
     <section className="education"><p className="eyebrow">EDUCATION</p>{profile.education.map((item) => <p key={item.institution}><b>{item.qualification}</b><span>{item.institution} · {item.dates}</span></p>)}</section>
-  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}</>;
+  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollFuelGauge /></>;
 }
