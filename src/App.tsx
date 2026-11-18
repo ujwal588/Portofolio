@@ -12,6 +12,67 @@ const featured = projects.filter((project) => project.featured).sort((a, b) => (
 const technical = projects.filter((project) => project.technical_exploration).sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99));
 const initialPath = () => window.location.pathname.replace(/\/$/, "") || "/";
 
+type GearSpec = { x: number; y: number; teeth: number; phase: number; direction: "normal" | "reverse" };
+const gearTrain: GearSpec[] = [
+  { x: 0, y: 0, teeth: 24, phase: 0, direction: "normal" },
+  { x: 120, y: 0, teeth: 16, phase: 168.75, direction: "reverse" },
+  { x: 120, y: -84, teeth: 12, phase: 90, direction: "normal" },
+  { x: 0, y: 126, teeth: 18, phase: 260, direction: "reverse" },
+  { x: -84, y: 126, teeth: 10, phase: 342, direction: "normal" },
+  { x: -138, y: 126, teeth: 8, phase: 0, direction: "reverse" },
+  { x: -108, y: 0, teeth: 12, phase: 345, direction: "reverse" },
+  { x: -108, y: -66, teeth: 10, phase: 90, direction: "normal" },
+];
+const gearClusters = [
+  { x: 110, y: 74, scale: 0.58 },
+  { x: 590, y: 88, scale: 0.55 },
+  { x: 1110, y: 70, scale: 0.6 },
+  { x: 230, y: 625, scale: 0.55 },
+  { x: 690, y: 610, scale: 0.58 },
+  { x: 1210, y: 632, scale: 0.57 },
+  { x: 720, y: 390, scale: 0.54 },
+];
+
+function makeGearPath(teeth: number) {
+  const pitchRadius = teeth * 3;
+  const rootRadius = pitchRadius - 4;
+  const tipRadius = pitchRadius + 4;
+  const toothPitch = (Math.PI * 2) / teeth;
+  const profile: Array<[number, number]> = [
+    [-0.5, rootRadius], [-0.3, rootRadius], [-0.19, tipRadius],
+    [0.19, tipRadius], [0.3, rootRadius], [0.5, rootRadius],
+  ];
+  const points = Array.from({ length: teeth }, (_, index) => profile.map(([offset, radius]) => {
+    const angle = (index + offset) * toothPitch;
+    return `${(Math.cos(angle) * radius).toFixed(2)},${(Math.sin(angle) * radius).toFixed(2)}`;
+  })).flat();
+  return `M${points[0]} L${points.slice(1).join(" L")} Z`;
+}
+
+function GearBackground() {
+  return <svg className="ambient-gears" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    {gearClusters.map((cluster, clusterIndex) => <g key={clusterIndex} transform={`translate(${cluster.x} ${cluster.y}) scale(${cluster.scale})`}>
+      {gearTrain.map((gear, gearIndex) => {
+        const radius = gear.teeth * 3;
+        const spokeEnd = radius * 0.58;
+        return <g key={gearIndex} transform={`translate(${gear.x} ${gear.y}) rotate(${gear.phase})`}>
+          <g className={`ambient-gear-rotor${gearIndex % 2 ? " gear-tone-lilac" : " gear-tone-peach"}`} style={{ animationDuration: `${gear.teeth * 0.62}s`, animationDirection: gear.direction }}>
+            <path className="ambient-gear-body" d={makeGearPath(gear.teeth)} />
+            <g className="ambient-gear-spokes">
+              <line x1="0" y1={-radius * 0.2} x2="0" y2={-spokeEnd} />
+              <line x1="0" y1={-radius * 0.2} x2="0" y2={-spokeEnd} transform="rotate(90)" />
+              <line x1="0" y1={-radius * 0.2} x2="0" y2={-spokeEnd} transform="rotate(180)" />
+              <line x1="0" y1={-radius * 0.2} x2="0" y2={-spokeEnd} transform="rotate(270)" />
+            </g>
+            <circle className="ambient-gear-hub" r={radius * 0.24} />
+            <circle className="ambient-gear-hole" r={radius * 0.09} />
+          </g>
+        </g>;
+      })}
+    </g>)}
+  </svg>;
+}
+
 const skillIcons: Record<string, { slug: string; color: string; fallback: string }> = {
   "C++": { slug: "cplusplus", color: "00599C", fallback: "C+" },
   Java: { slug: "openjdk", color: "437291", fallback: "J" },
@@ -286,10 +347,10 @@ export default function App() {
     setTransitioning(false);
   };
   const header = <Header page={page} onSystemsClick={beginSystemsTransition} transitioning={transitioning} />;
-  if (page === "/systems" || page === "/explore") return <><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
-  if (page === "/blog") return <><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
+  if (page === "/systems" || page === "/explore") return <><GearBackground /><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
+  if (page === "/blog") return <><GearBackground /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
 
-  return <><div className="site">{header}<main id="top">
+  return <><GearBackground /><div className="site">{header}<main id="top">
     <section className="hero content-panel" data-motion-panel>
       <div className="hero-content"><p className="eyebrow">SOFTWARE · APPLIED MACHINE LEARNING</p><h1>Ujwal Boosala.</h1><p className="hero-copy"><span>Applied machine learning and software development.</span><span>Projects span transformers, generative models, and anomaly detection.</span><span>Hands-on with Python, PyTorch, model evaluation, and web interfaces.</span><span>Focused on turning experiments into clear, useful tools.</span></p><div className="hero-actions"><a className="primary-link" href="#projects">View projects <ArrowRight size={16} /></a><div className="resume-actions"><a className="secondary-link" href={profile.resumePath} target="_blank" rel="noreferrer"><Eye size={17} /> View résumé</a><a className="download-button" href={profile.resumePath} download aria-label="Download résumé" title="Download résumé"><Download size={18} /></a></div></div><ContactLinks /></div>
     </section>
