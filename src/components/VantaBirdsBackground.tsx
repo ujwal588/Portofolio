@@ -32,15 +32,15 @@ export default function VantaBirdsBackground() {
           scaleMobile: 0.8,
           backgroundAlpha: 0,
           colorMode: "lerp",
-          color1: 0xb89397,
-          color2: 0x9690a1,
-          birdSize: 0.85,
-          wingSpan: 20,
-          speedLimit: 2.5,
+          color1: 0x9b5f6e,
+          color2: 0x6f638e,
+          birdSize: 1.15,
+          wingSpan: 26,
+          speedLimit: 3,
           separation: 28,
           alignment: 22,
           cohesion: 24,
-          quantity: 3,
+          quantity: 5,
         });
       } catch (error) {
         // Leave the stylesheet's gentle page-color fallback in place if WebGL is unavailable.
