@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { ArrowRight, ArrowUp, ArrowUpRight, Download, Eye } from "lucide-react";
+import { GearSystemBackground, MechanicalPageTransition, type GearSystemHandle, type MechanicalPageTransitionHandle } from "./components/GearSystem";
 import profile from "./content/profile.json";
 import skills from "./content/skills.json";
 import registry from "./content/project-registry.json";
@@ -7,71 +8,13 @@ import blogSamples from "./content/blog-samples.json";
 import type { RegistryProject } from "./content/types";
 
 type Project = RegistryProject & { technical_note?: string };
+type DestinationPath = "/systems" | "/blog";
+type NavigationEvent = MouseEvent<HTMLAnchorElement | HTMLButtonElement>;
+type NavigationHandler = (target: DestinationPath, event: NavigationEvent) => void;
 const projects = (registry.projects as Project[]).filter((project) => project.visible);
 const featured = projects.filter((project) => project.featured).sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99)).slice(0, 5);
 const technical = projects.filter((project) => project.technical_exploration).sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99));
 const initialPath = () => window.location.pathname.replace(/\/$/, "") || "/";
-
-type GearSpec = { x: number; y: number; teeth: number; phase: number; direction: "normal" | "reverse" };
-const gearTrain: GearSpec[] = [
-  { x: 0, y: 0, teeth: 24, phase: 0, direction: "normal" },
-  { x: 120, y: 0, teeth: 16, phase: 168.75, direction: "reverse" },
-  { x: 120, y: -84, teeth: 12, phase: 90, direction: "normal" },
-  { x: 0, y: 126, teeth: 18, phase: 260, direction: "reverse" },
-  { x: -84, y: 126, teeth: 10, phase: 342, direction: "normal" },
-  { x: -138, y: 126, teeth: 8, phase: 0, direction: "reverse" },
-  { x: -108, y: 0, teeth: 12, phase: 345, direction: "reverse" },
-  { x: -108, y: -66, teeth: 10, phase: 90, direction: "normal" },
-];
-const gearClusters = [
-  { x: 110, y: 74, scale: 0.58 },
-  { x: 590, y: 88, scale: 0.55 },
-  { x: 1110, y: 70, scale: 0.6 },
-  { x: 230, y: 625, scale: 0.55 },
-  { x: 690, y: 610, scale: 0.58 },
-  { x: 1210, y: 632, scale: 0.57 },
-  { x: 720, y: 390, scale: 0.54 },
-];
-
-function makeGearPath(teeth: number) {
-  const pitchRadius = teeth * 3;
-  const rootRadius = pitchRadius - 4;
-  const tipRadius = pitchRadius + 4;
-  const toothPitch = (Math.PI * 2) / teeth;
-  const profile: Array<[number, number]> = [
-    [-0.5, rootRadius], [-0.3, rootRadius], [-0.19, tipRadius],
-    [0.19, tipRadius], [0.3, rootRadius], [0.5, rootRadius],
-  ];
-  const points = Array.from({ length: teeth }, (_, index) => profile.map(([offset, radius]) => {
-    const angle = (index + offset) * toothPitch;
-    return `${(Math.cos(angle) * radius).toFixed(2)},${(Math.sin(angle) * radius).toFixed(2)}`;
-  })).flat();
-  return `M${points[0]} L${points.slice(1).join(" L")} Z`;
-}
-
-function GearBackground() {
-  return <svg className="ambient-gears" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    {gearClusters.map((cluster, clusterIndex) => <g key={clusterIndex} transform={`translate(${cluster.x} ${cluster.y}) scale(${cluster.scale})`}>
-      {gearTrain.map((gear, gearIndex) => {
-        const radius = gear.teeth * 3;
-        const spokeEnd = radius * 0.58;
-        return <g key={gearIndex} transform={`translate(${gear.x} ${gear.y}) rotate(${gear.phase})`}>
-          <g className={`ambient-gear-rotor${gearIndex % 2 ? " gear-tone-lilac" : " gear-tone-peach"}`} style={{ animationDuration: `${gear.teeth * 0.62}s`, animationDirection: gear.direction }}>
-            <path className="ambient-gear-body" d={makeGearPath(gear.teeth)} />
-            <g className="ambient-gear-spokes">
-              <line x1="0" y1={-radius * 0.2} x2="0" y2={-spokeEnd} />
-              <line x1="0" y1={-radius * 0.2} x2="0" y2={-spokeEnd} transform="rotate(90)" />
-              <line x1="0" y1={-radius * 0.2} x2="0" y2={-spokeEnd} transform="rotate(180)" />
-              <line x1="0" y1={-radius * 0.2} x2="0" y2={-spokeEnd} transform="rotate(270)" />
-            </g>
-            <circle className="ambient-gear-hub" r={radius * 0.24} />
-            <circle className="ambient-gear-hole" r={radius * 0.09} />
-          </g>
-        </g>;
-      })}
-    </g>)}
-  </svg>;
-}
 
 const skillIcons: Record<string, { slug: string; color: string; fallback: string }> = {
   "C++": { slug: "cplusplus", color: "00599C", fallback: "C+" },
@@ -102,10 +45,11 @@ function IconTile({ name, large = false }: { name: string; large?: boolean }) {
   return <span className={`skill-icon${large ? " skill-icon-large" : ""}`} tabIndex={0} aria-label={name} title={name}><img src={`https://cdn.simpleicons.org/${icon.slug}/${icon.color}`} alt="" onError={(event) => { event.currentTarget.hidden = true; event.currentTarget.parentElement?.classList.add("fallback-visible"); }} /><span className="icon-fallback">{icon.fallback}</span><span className="skill-tooltip">{name}</span></span>;
 }
 
-function Header({ page, onSystemsClick, transitioning = false }: { page: string; onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
+function Header({ page, onNavigate, transitioning = false }: { page: string; onNavigate: NavigationHandler; transitioning?: boolean }) {
   const isSystems = page === "/systems" || page === "/explore";
   const isBlog = page === "/blog";
-  return <header className="topbar content-panel" data-motion-panel><a className="brand" href="/"><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isSystems ? <><a href="/">Home</a><a href="/blog">Blog</a></> : isBlog ? <><a href="/">Home</a><button type="button" className="systems-nav-button" onClick={onSystemsClick} disabled={transitioning}>Systems</button></> : <><a href="#projects">Projects</a><button type="button" className={`systems-nav-button${transitioning ? " is-transitioning" : ""}`} onClick={onSystemsClick} disabled={transitioning}>Systems</button><a href="/blog">Blog</a></>}</nav></header>;
+  const navLink = (target: DestinationPath, label: string) => <a href={target} className={`mechanical-nav-link${transitioning ? " is-transitioning" : ""}`} aria-disabled={transitioning} tabIndex={transitioning ? -1 : undefined} onClick={(event) => onNavigate(target, event)}>{label}</a>;
+  return <header className="topbar content-panel" data-motion-panel><a className="brand" href="/"><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isSystems ? <><a href="/">Home</a>{navLink("/blog", "Blog")}</> : isBlog ? <><a href="/">Home</a>{navLink("/systems", "Systems")}</> : <><a href="#projects">Projects</a>{navLink("/systems", "Systems")}{navLink("/blog", "Blog")}</>}</nav></header>;
 }
 
 function ProjectCard({ project, index, detailed = false }: { project: Project; index: number; detailed?: boolean }) {
@@ -231,136 +175,60 @@ function ScrollProgressGauge() {
   </aside>;
 }
 
-function SystemsPage({ onSystemsClick, transitioning = false }: { onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
-  return <div className="site systems-page"><Header page="/systems" onSystemsClick={onSystemsClick} transitioning={transitioning} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / SYSTEMS</p><h1>Systems <em>work.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>;
+function SystemsPage({ onNavigate, transitioning = false }: { onNavigate: NavigationHandler; transitioning?: boolean }) {
+  return <div className="site systems-page"><Header page="/systems" onNavigate={onNavigate} transitioning={transitioning} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / SYSTEMS</p><h1>Systems <em>work.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>;
 }
 
-type ButtonRect = { left: number; top: number; width: number; height: number };
+function BlogPage({ onNavigate, transitioning = false }: { onNavigate: NavigationHandler; transitioning?: boolean }) {
+  return <div className="site"><Header page="/blog" onNavigate={onNavigate} transitioning={transitioning} /><main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>;
+}
 
-function SystemsPortal({ buttonRect, onComplete }: { buttonRect: ButtonRect; onComplete: () => void }) {
-  const revealRef = useRef<HTMLDivElement>(null);
-  const coreRef = useRef<HTMLDivElement>(null);
-  const cloneRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const reveal = revealRef.current;
-    const core = coreRef.current;
-    const clone = cloneRef.current;
-    if (!reveal || !core || !clone) return;
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const timers: number[] = [];
-    const delay = (ms: number) => new Promise<void>((resolve) => { timers.push(window.setTimeout(resolve, ms)); });
-    let cancelled = false;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const run = async () => {
-      if (reducedMotion) {
-        reveal.style.clipPath = "circle(150vmax at 50% 50%)";
-        await delay(0);
-        if (!cancelled) onComplete();
-        return;
-      }
-
-      // Stage 1: lift the measured button copy from its exact on-screen position.
-      clone.animate(
-        [{ transform: "translateY(0) scale(1)", boxShadow: "0 0 0 transparent" }, { transform: "translateY(-6px) scale(1.15)", boxShadow: "0 14px 30px #17201855" }],
-        { duration: 200, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" },
-      );
-
-      await delay(100);
-      if (cancelled) return;
-      // Stage 2: open the compact aperture with a spring-like overshoot.
-      reveal.animate(
-        [{ clipPath: "circle(0px at 50% 50%)" }, { clipPath: "circle(70px at 50% 50%)" }],
-        { duration: 250, easing: "cubic-bezier(.2,.8,.25,1)", fill: "forwards" },
-      );
-      core.animate(
-        [
-          { transform: "translate(-50%,-50%) scale(0)", opacity: 0 },
-          { transform: "translate(-50%,-50%) scale(1.12)", opacity: 1, offset: 0.72 },
-          { transform: "translate(-50%,-50%) scale(.97)", opacity: 1, offset: 0.9 },
-          { transform: "translate(-50%,-50%) scale(1)", opacity: 1 },
-        ],
-        { duration: 250, easing: "cubic-bezier(.2,.8,.25,1)", fill: "forwards" },
-      );
-
-      await delay(200);
-      if (cancelled) return;
-      // Stage 3: arc the copied button toward the portal center, then fade it.
-      const dx = window.innerWidth / 2 - buttonRect.left - buttonRect.width / 2;
-      const dy = window.innerHeight / 2 - buttonRect.top - buttonRect.height / 2;
-      clone.animate(
-        [
-          { transform: "translate(0,-6px) scale(1.15)", opacity: 1, offset: 0 },
-          { transform: `translate(${dx * 0.62 - 12}px,${dy * 0.56 - 20}px) rotate(6deg) scale(.68)`, opacity: 0.95, offset: 0.62 },
-          { transform: `translate(${dx}px,${dy}px) rotate(12deg) scale(.1)`, opacity: 0 },
-        ],
-        { duration: 300, easing: "cubic-bezier(.45,0,.7,.4)", fill: "forwards" },
-      );
-
-      await delay(250);
-      if (cancelled) return;
-      // Stage 4: reveal the already-mounted Systems page without scaling its content.
-      const expansion = reveal.animate(
-        [{ clipPath: "circle(70px at 50% 50%)" }, { clipPath: "circle(150vmax at 50% 50%)" }],
-        { duration: 500, easing: "cubic-bezier(.76,0,.24,1)", fill: "forwards" },
-      );
-      try { await expansion.finished; } catch { return; }
-      if (!cancelled) onComplete();
-    };
-
-    void run();
-    return () => {
-      cancelled = true;
-      timers.forEach(window.clearTimeout);
-      document.body.style.overflow = originalOverflow;
-      reveal.getAnimations().forEach((animation) => animation.cancel());
-      core.getAnimations().forEach((animation) => animation.cancel());
-      clone.getAnimations().forEach((animation) => animation.cancel());
-    };
-  }, [buttonRect, onComplete]);
-
-  return <div className="systems-transition-layer" aria-hidden="true">
-    <div className="systems-reveal" ref={revealRef}><SystemsPage onSystemsClick={() => undefined} /></div>
-    <div className="portal-core" ref={coreRef} />
-    <button className="systems-button-clone" ref={cloneRef} tabIndex={-1} style={{ left: buttonRect.left, top: buttonRect.top, width: buttonRect.width, height: buttonRect.height }}>Systems</button>
-  </div>;
+function HomePage({ onNavigate, transitioning = false }: { onNavigate: NavigationHandler; transitioning?: boolean }) {
+  return <div className="site"><Header page="/" onNavigate={onNavigate} transitioning={transitioning} /><main id="top">
+    <section className="hero content-panel" data-motion-panel>
+      <div className="hero-content"><p className="eyebrow">SOFTWARE · APPLIED MACHINE LEARNING</p><h1>Ujwal Boosala.</h1><p className="hero-copy"><span>Applied machine learning and software development.</span><span>Projects span transformers, generative models, and anomaly detection.</span><span>Hands-on with Python, PyTorch, model evaluation, and web interfaces.</span><span>Focused on turning experiments into clear, useful tools.</span></p><div className="hero-actions"><a className="primary-link" href="#projects">View projects <ArrowRight size={16} /></a><div className="resume-actions"><a className="secondary-link" href={profile.resumePath} target="_blank" rel="noreferrer"><Eye size={17} /> View résumé</a><a className="download-button" href={profile.resumePath} download aria-label="Download résumé" title="Download résumé"><Download size={18} /></a></div></div><ContactLinks /></div>
+    </section>
+    <SkillsSection />
+    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><button type="button" className={`text-link systems-project-button${transitioning ? " is-transitioning" : ""}`} onClick={(event) => onNavigate("/systems", event)} disabled={transitioning}>Systems <ArrowUpRight size={15} /></button></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
+    <section className="highlights content-panel" data-motion-panel><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span className="content-tile" key={item.title} data-motion-panel>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span className="content-tile" key={item.name} data-motion-panel>{item.name} · {item.provider}</span>)}</div></section>
+    <section className="education content-panel" data-motion-panel><p className="eyebrow">EDUCATION</p>{profile.education.map((item) => <p key={item.institution}><b>{item.qualification}</b><span>{item.institution} · {item.dates}</span></p>)}</section>
+  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>;
 }
 
 export default function App() {
   const [page, setPage] = useState(initialPath);
-  const [buttonRect, setButtonRect] = useState<ButtonRect | null>(null);
   const [transitioning, setTransitioning] = useState(false);
-  useEffect(() => { const update = () => setPage(initialPath()); window.addEventListener("popstate", update); return () => window.removeEventListener("popstate", update); }, []);
-  const beginSystemsTransition = (event: MouseEvent<HTMLButtonElement>) => {
-    if (transitioning) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    setButtonRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+  const gearRef = useRef<GearSystemHandle>(null);
+  const transitionRef = useRef<MechanicalPageTransitionHandle>(null);
+  useEffect(() => {
+    const update = () => {
+      transitionRef.current?.cancel();
+      setTransitioning(false);
+      setPage(initialPath());
+    };
+    window.addEventListener("popstate", update);
+    return () => window.removeEventListener("popstate", update);
+  }, []);
+  const beginNavigation: NavigationHandler = (target, event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || transitioning) return;
+    event.preventDefault();
+    if (target === page) return;
+    transitionRef.current?.start(target, target === "/systems" ? "Systems" : "Blog", event.currentTarget.getBoundingClientRect());
     setTransitioning(true);
   };
-  const completeSystemsTransition = () => {
-    window.history.pushState({}, "", "/systems");
-    setPage("/systems");
-    setButtonRect(null);
+  const completeNavigation = (target: DestinationPath) => {
+    window.history.pushState({}, "", target);
+    setPage(target);
     setTransitioning(false);
+    window.scrollTo({ top: 0, behavior: "auto" });
   };
-  const header = <Header page={page} onSystemsClick={beginSystemsTransition} transitioning={transitioning} />;
-  if (page === "/systems" || page === "/explore") return <><GearBackground /><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
-  if (page === "/blog") return <><GearBackground /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
-
-  return <><GearBackground /><div className="site">{header}<main id="top">
-    <section className="hero content-panel" data-motion-panel>
-      <div className="hero-content"><p className="eyebrow">SOFTWARE · APPLIED MACHINE LEARNING</p><h1>Ujwal Boosala.</h1><p className="hero-copy"><span>Applied machine learning and software development.</span><span>Projects span transformers, generative models, and anomaly detection.</span><span>Hands-on with Python, PyTorch, model evaluation, and web interfaces.</span><span>Focused on turning experiments into clear, useful tools.</span></p><div className="hero-actions"><a className="primary-link" href="#projects">View projects <ArrowRight size={16} /></a><div className="resume-actions"><a className="secondary-link" href={profile.resumePath} target="_blank" rel="noreferrer"><Eye size={17} /> View résumé</a><a className="download-button" href={profile.resumePath} download aria-label="Download résumé" title="Download résumé"><Download size={18} /></a></div></div><ContactLinks /></div>
-    </section>
-
-    <SkillsSection />
-
-    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><button type="button" className={`text-link systems-project-button${transitioning ? " is-transitioning" : ""}`} onClick={beginSystemsTransition} disabled={transitioning}>Systems <ArrowUpRight size={15} /></button></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
-
-    <section className="highlights content-panel" data-motion-panel><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span className="content-tile" key={item.title} data-motion-panel>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span className="content-tile" key={item.name} data-motion-panel>{item.name} · {item.provider}</span>)}</div></section>
-
-    <section className="education content-panel" data-motion-panel><p className="eyebrow">EDUCATION</p>{profile.education.map((item) => <p key={item.institution}><b>{item.qualification}</b><span>{item.institution} · {item.dates}</span></p>)}</section>
-  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
+  const renderPage = (path: DestinationPath) => path === "/systems"
+    ? <SystemsPage onNavigate={beginNavigation} transitioning={transitioning} />
+    : <BlogPage onNavigate={beginNavigation} transitioning={transitioning} />;
+  return <>
+    <GearSystemBackground ref={gearRef} />
+    {page === "/systems" || page === "/explore" ? renderPage("/systems") : page === "/blog" ? renderPage("/blog") : <HomePage onNavigate={beginNavigation} transitioning={transitioning} />}
+    <MechanicalPageTransition ref={transitionRef} gears={gearRef} renderPage={renderPage} onComplete={completeNavigation} />
+    <ScrollProgressGauge />
+  </>;
 }
