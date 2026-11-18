@@ -196,7 +196,7 @@ function ScrollProgressGauge() {
     </svg>
     <span className="fuel-caption" aria-hidden="true">SCROLL</span>
     <div
-      className="fuel-track"
+      className={`fuel-track${remaining === 100 ? " is-full" : ""}`}
       ref={trackRef}
       role="scrollbar"
       aria-label="Page scroll position"
