@@ -44,11 +44,11 @@ function IconTile({ name, large = false }: { name: string; large?: boolean }) {
 function Header({ page, onSystemsClick, transitioning = false }: { page: string; onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
   const isSystems = page === "/systems" || page === "/explore";
   const isBlog = page === "/blog";
-  return <header className="topbar"><a className="brand" href="/"><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isSystems ? <><a href="/">Home</a><a href="/blog">Blog</a></> : isBlog ? <><a href="/">Home</a><button type="button" className="systems-nav-button" onClick={onSystemsClick} disabled={transitioning}>Systems</button></> : <><a href="#projects">Projects</a><button type="button" className={`systems-nav-button${transitioning ? " is-transitioning" : ""}`} onClick={onSystemsClick} disabled={transitioning}>Systems</button><a href="/blog">Blog</a></>}</nav></header>;
+  return <header className="topbar content-panel" data-motion-panel><a className="brand" href="/"><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isSystems ? <><a href="/">Home</a><a href="/blog">Blog</a></> : isBlog ? <><a href="/">Home</a><button type="button" className="systems-nav-button" onClick={onSystemsClick} disabled={transitioning}>Systems</button></> : <><a href="#projects">Projects</a><button type="button" className={`systems-nav-button${transitioning ? " is-transitioning" : ""}`} onClick={onSystemsClick} disabled={transitioning}>Systems</button><a href="/blog">Blog</a></>}</nav></header>;
 }
 
 function ProjectCard({ project, index, detailed = false }: { project: Project; index: number; detailed?: boolean }) {
-  return <article className={`project-card card-${index % 3}`}>
+  return <article className={`project-card content-tile card-${index % 3}`} data-motion-panel>
     <div className="card-meta"><span>{project.category}</span><span>{project.status}</span></div>
     <div className="project-title-row"><div><h3>{project.custom_title || project.repository}</h3><p>{project.custom_description}</p></div><a className="repo-icon" href={`https://github.com/${registry.owner}/${project.repository}`} target="_blank" rel="noreferrer" aria-label={`View ${project.custom_title || project.repository} source on GitHub`} title="View source on GitHub"><img src="https://cdn.simpleicons.org/github/202520" alt="" onError={(event) => { event.currentTarget.hidden = true; event.currentTarget.parentElement?.classList.add("fallback-visible"); }} /><span className="icon-fallback">GH</span></a></div>
     <div className="technology-icons">{(project.technologies || []).map((tag) => <IconTile name={tag} key={tag} />)}</div>
@@ -61,14 +61,14 @@ function ContactLinks() {
 }
 
 function SkillsSection() {
-  return <section className="skills-section" id="skills"><div className="section-head"><div><p className="eyebrow">TOOLS I USE</p><h2>Skills</h2></div></div><div className="skill-groups">{(skills as Array<{ group: string; items: string[] }>).map((group) => <div className="skill-group" key={group.group}><h3>{group.group}</h3><div className="skill-icons">{group.items.map((item) => <IconTile name={item} key={item} large />)}</div></div>)}</div></section>;
+  return <section className="skills-section content-panel" id="skills" data-motion-panel><div className="section-head"><div><p className="eyebrow">TOOLS I USE</p><h2>Skills</h2></div></div><div className="skill-groups">{(skills as Array<{ group: string; items: string[] }>).map((group) => <div className="skill-group content-tile" key={group.group} data-motion-panel><h3>{group.group}</h3><div className="skill-icons">{group.items.map((item) => <IconTile name={item} key={item} large />)}</div></div>)}</div></section>;
 }
 
-function ScrollFuelGauge() {
+function ScrollProgressGauge() {
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [refilling, setRefilling] = useState(false);
+  const [returning, setReturning] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
-  const refillTimer = useRef<number | null>(null);
+  const returnTimer = useRef<number | null>(null);
 
   useEffect(() => {
     let frame = 0;
@@ -92,7 +92,7 @@ function ScrollFuelGauge() {
   }, []);
 
   useEffect(() => () => {
-    if (refillTimer.current !== null) window.clearTimeout(refillTimer.current);
+    if (returnTimer.current !== null) window.clearTimeout(returnTimer.current);
   }, []);
 
   const scrollToTrackPosition = (clientY: number) => {
@@ -119,21 +119,21 @@ function ScrollFuelGauge() {
     window.scrollTo({ top: maxScroll * Math.min(1, Math.max(0, next)), behavior: "smooth" });
   };
 
-  const refill = () => {
-    if (refillTimer.current !== null) window.clearTimeout(refillTimer.current);
-    setRefilling(true);
+  const scrollToTop = () => {
+    if (returnTimer.current !== null) window.clearTimeout(returnTimer.current);
+    setReturning(true);
     window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-    refillTimer.current = window.setTimeout(() => setRefilling(false), 1100);
+    returnTimer.current = window.setTimeout(() => setReturning(false), 1100);
   };
 
-  const fuel = Math.round((1 - scrollProgress) * 100);
-  return <aside className={`fuel-control${refilling ? " is-refilling" : ""}`} aria-label="Page scroll fuel gauge">
-    <svg className="fuel-wire" viewBox="0 0 72 280" preserveAspectRatio="none" aria-hidden="true">
-      <path className="fuel-wire-shadow" d="M48 168v20c0 14 12 13 12 26v13H35v9" />
-      <path className="fuel-wire-line" d="M48 168v20c0 14 12 13 12 26v13H35v9" />
-      <circle className="fuel-wire-joint" cx="48" cy="168" r="3" />
+  const remaining = Math.round((1 - scrollProgress) * 100);
+  return <aside className={`fuel-control${returning ? " is-returning" : ""}`} aria-label="Page scroll progress">
+    <svg className="fuel-wire" viewBox="0 0 72 108" preserveAspectRatio="none" aria-hidden="true">
+      <path className="fuel-wire-shadow" d="M48 0v24c0 22 12 21 12 42c0 8-12 12-25 12" />
+      <path className="fuel-wire-line" d="M48 0v24c0 22 12 21 12 42c0 8-12 12-25 12" />
+      <circle className="fuel-wire-joint" cx="48" cy="2" r="3" />
     </svg>
-    <span className="fuel-caption" aria-hidden="true">FUEL</span>
+    <span className="fuel-caption" aria-hidden="true">SCROLL</span>
     <div
       className="fuel-track"
       ref={trackRef}
@@ -144,34 +144,34 @@ function ScrollFuelGauge() {
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(scrollProgress * 100)}
-      aria-valuetext={`${fuel}% fuel remaining`}
+      aria-valuetext={`${remaining}% of the page remains`}
       tabIndex={0}
       onKeyDown={onTrackKeyDown}
       onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); scrollToTrackPosition(event.clientY); }}
       onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) scrollToTrackPosition(event.clientY); }}
     >
-      <span className="fuel-scale fuel-scale-full" aria-hidden="true">F</span>
-      <span className="fuel-scale fuel-scale-half" aria-hidden="true">½</span>
-      <span className="fuel-scale fuel-scale-empty" aria-hidden="true">E</span>
+      <span className="fuel-scale fuel-scale-full" aria-hidden="true">TOP</span>
+      <span className="fuel-scale fuel-scale-half" aria-hidden="true">MID</span>
+      <span className="fuel-scale fuel-scale-empty" aria-hidden="true">END</span>
       <span className="fuel-window" aria-hidden="true">
-        <span className="fuel-liquid" style={{ height: `${fuel}%` }}>
+        <span className="fuel-liquid" style={{ height: `${remaining}%` }}>
           <span className="fuel-wave" />
           <span className="fuel-bubble fuel-bubble-one" />
           <span className="fuel-bubble fuel-bubble-two" />
         </span>
         <span className="fuel-glint" />
       </span>
-      <span className="fuel-value" aria-hidden="true">{fuel}%</span>
+      <span className="fuel-value" aria-hidden="true">{remaining}%</span>
     </div>
-    <button type="button" className="fuel-refill" onClick={refill} disabled={scrollProgress < 0.005} aria-label="Refill tank and scroll to the top" title="Refill and return to top">
+    <button type="button" className="fuel-refill" onClick={scrollToTop} disabled={scrollProgress < 0.005} aria-label="Scroll to top" title="Return to top">
       <ArrowUp size={17} strokeWidth={2.2} />
     </button>
-    <span className="fuel-refill-label" aria-hidden="true">REFILL</span>
+    <span className="fuel-refill-label" aria-hidden="true">TOP</span>
   </aside>;
 }
 
 function SystemsPage({ onSystemsClick, transitioning = false }: { onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
-  return <div className="site systems-page"><Header page="/systems" onSystemsClick={onSystemsClick} transitioning={transitioning} /><main className="explore-page"><p className="eyebrow">PROJECTS / SYSTEMS</p><h1>Systems <em>work.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>;
+  return <div className="site systems-page"><Header page="/systems" onSystemsClick={onSystemsClick} transitioning={transitioning} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / SYSTEMS</p><h1>Systems <em>work.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>;
 }
 
 type ButtonRect = { left: number; top: number; width: number; height: number };
@@ -286,20 +286,20 @@ export default function App() {
     setTransitioning(false);
   };
   const header = <Header page={page} onSystemsClick={beginSystemsTransition} transitioning={transitioning} />;
-  if (page === "/systems" || page === "/explore") return <><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollFuelGauge /></>;
-  if (page === "/blog") return <><div className="site">{header}<main className="explore-page blog-page"><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card card-${index % 3}`} key={post.title}><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollFuelGauge /></>;
+  if (page === "/systems" || page === "/explore") return <><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
+  if (page === "/blog") return <><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
 
   return <><div className="site">{header}<main id="top">
-    <section className="hero">
-      <div className="hero-content"><p className="eyebrow">SOFTWARE · APPLIED MACHINE LEARNING</p><h1>Ujwal Boosala.</h1><p className="hero-copy">Applied ML and software projects.</p><div className="hero-actions"><a className="primary-link" href="#projects">View projects <ArrowRight size={16} /></a><div className="resume-actions"><a className="secondary-link" href={profile.resumePath} target="_blank" rel="noreferrer"><Eye size={17} /> View résumé</a><a className="download-button" href={profile.resumePath} download aria-label="Download résumé" title="Download résumé"><Download size={18} /></a></div></div><ContactLinks /></div>
+    <section className="hero content-panel" data-motion-panel>
+      <div className="hero-content"><p className="eyebrow">SOFTWARE · APPLIED MACHINE LEARNING</p><h1>Ujwal Boosala.</h1><p className="hero-copy"><span>Applied machine learning and software development.</span><span>Projects span transformers, generative models, and anomaly detection.</span><span>Hands-on with Python, PyTorch, model evaluation, and web interfaces.</span><span>Focused on turning experiments into clear, useful tools.</span></p><div className="hero-actions"><a className="primary-link" href="#projects">View projects <ArrowRight size={16} /></a><div className="resume-actions"><a className="secondary-link" href={profile.resumePath} target="_blank" rel="noreferrer"><Eye size={17} /> View résumé</a><a className="download-button" href={profile.resumePath} download aria-label="Download résumé" title="Download résumé"><Download size={18} /></a></div></div><ContactLinks /></div>
     </section>
 
     <SkillsSection />
 
-    <section className="projects-section" id="projects"><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><button type="button" className={`text-link systems-project-button${transitioning ? " is-transitioning" : ""}`} onClick={beginSystemsTransition} disabled={transitioning}>Systems <ArrowUpRight size={15} /></button></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
+    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><button type="button" className={`text-link systems-project-button${transitioning ? " is-transitioning" : ""}`} onClick={beginSystemsTransition} disabled={transitioning}>Systems <ArrowUpRight size={15} /></button></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
 
-    <section className="highlights"><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span key={item.title}>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span key={item.name}>{item.name} · {item.provider}</span>)}</div></section>
+    <section className="highlights content-panel" data-motion-panel><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span className="content-tile" key={item.title} data-motion-panel>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span className="content-tile" key={item.name} data-motion-panel>{item.name} · {item.provider}</span>)}</div></section>
 
-    <section className="education"><p className="eyebrow">EDUCATION</p>{profile.education.map((item) => <p key={item.institution}><b>{item.qualification}</b><span>{item.institution} · {item.dates}</span></p>)}</section>
-  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollFuelGauge /></>;
+    <section className="education content-panel" data-motion-panel><p className="eyebrow">EDUCATION</p>{profile.education.map((item) => <p key={item.institution}><b>{item.qualification}</b><span>{item.institution} · {item.dates}</span></p>)}</section>
+  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<ScrollProgressGauge /></>;
 }
