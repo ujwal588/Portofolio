@@ -77,12 +77,11 @@ function LanternReturnButton() {
   const sendFlockHome = () => {
     if (timer.current !== null) window.clearTimeout(timer.current);
     setRinging(true);
-    window.dispatchEvent(new Event("portfolio:flock-to-top"));
     window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     timer.current = window.setTimeout(() => setRinging(false), 950);
   };
 
-  return <button type="button" className={`lantern-return${ringing ? " is-ringing" : ""}`} onClick={sendFlockHome} aria-label="Send the birds to the top and return to the top of the page" title="Call the flock to the top">
+  return <button type="button" className={`lantern-return${ringing ? " is-ringing" : ""}`} onClick={sendFlockHome} aria-label="Go to top">
     <img src="/lantern-return-cutout.png" alt="" />
     <span className="lantern-return-halo" aria-hidden="true" />
   </button>;

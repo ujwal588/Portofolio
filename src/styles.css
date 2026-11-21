@@ -291,18 +291,10 @@ body{font-size:14px}
 .lantern-return{position:fixed;z-index:90;right:14px;bottom:16px;width:88px;height:264px;padding:0;overflow:visible;border:0;border-radius:0;background:transparent;cursor:pointer;isolation:isolate;filter:drop-shadow(0 8px 12px rgba(40,43,44,.18));transition:filter .2s}
 .lantern-return img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:contain;object-position:center;border:0;border-radius:0;background:transparent}
 .lantern-return-halo{position:absolute;z-index:0;inset:25% 12%;border-radius:50%;background:radial-gradient(ellipse,rgba(195,194,187,.54),rgba(195,194,187,.2) 45%,transparent 75%);filter:blur(8px);pointer-events:none}
+.lantern-return::after{content:"Go to top";position:absolute;right:calc(100% + 12px);bottom:20px;white-space:nowrap;color:#b83e4d;text-align:right;font:italic 24px/1.1 "Segoe Script","Brush Script MT","Snell Roundhand",cursive;text-shadow:0 1px 3px rgba(255,247,238,.95);opacity:0;transform:translateX(8px) rotate(-4deg);transition:opacity .2s,transform .2s;pointer-events:none}
+.lantern-return:hover::after,.lantern-return:focus-visible::after{opacity:1;transform:translateX(0) rotate(-4deg)}
 .lantern-return:hover,.lantern-return:focus-visible{filter:drop-shadow(0 10px 16px rgba(40,43,44,.28)) drop-shadow(0 0 8px rgba(240,120,98,.38));outline:none}
 .lantern-return.is-ringing{animation:lantern-ring 1.15s cubic-bezier(.36,.07,.19,.97) both;filter:drop-shadow(0 0 12px rgba(240,120,98,.58)) drop-shadow(0 8px 12px rgba(40,43,44,.18))}
 @keyframes lantern-ring{0%,100%{transform:rotate(0) scale(1)}10%{transform:rotate(-8deg) scale(1.04)}20%{transform:rotate(9deg) scale(1.06)}32%{transform:rotate(-7deg) scale(1.04)}44%{transform:rotate(6deg) scale(1.025)}58%{transform:rotate(-3deg) scale(1.015)}72%{transform:rotate(2deg) scale(1.005)}}
-.vanta-scene{position:fixed;z-index:0;inset:0;overflow:hidden;pointer-events:none}
-.vanta-scene .vanta-background{position:absolute;inset:0}
-.vanta-background canvas{transition:opacity .18s ease}
-.vanta-background.flocking canvas{opacity:0}
-.flock-sweep{position:absolute;z-index:2;inset:0;overflow:hidden;pointer-events:none}
-.flock-bird{position:absolute;display:block;width:clamp(20px,2.6vw,36px);height:auto;color:#ef886e;opacity:0;filter:drop-shadow(0 1px 2px rgba(40,39,40,.24));animation:flock-rise var(--flight-duration,1.2s) cubic-bezier(.2,.65,.25,1) both;animation-delay:var(--flight-delay,0ms)}
-.flock-bird svg{display:block;width:100%;overflow:visible;fill:currentColor}
-.flock-bird:nth-child(3n){color:#e9b863}
-.flock-bird:nth-child(4n){color:#d77d76}
-@keyframes flock-rise{0%{transform:translate3d(0,0,0) rotate(var(--bird-tilt)) scale(var(--bird-scale));opacity:0}12%{opacity:.92}76%{transform:translate3d(var(--flight-x),-88vh,0) rotate(calc(var(--bird-tilt) * -1)) scale(var(--bird-scale));opacity:.88}100%{transform:translate3d(calc(var(--flight-x) * 1.25),-125vh,0) rotate(0) scale(calc(var(--bird-scale) * .8));opacity:0}}
-@media(max-width:600px){.lantern-return{right:8px;bottom:10px;width:64px;height:192px}.flock-bird{width:clamp(15px,5vw,28px)}}
-@media(prefers-reduced-motion:reduce){.lantern-return.is-ringing{animation:none}.lantern-return{transition:none}.flock-bird{animation-duration:.01ms!important}.vanta-background canvas{transition:none}}
+@media(max-width:600px){.lantern-return{right:8px;bottom:10px;width:64px;height:192px}.lantern-return::after{right:calc(100% + 7px);bottom:10px;font-size:18px;text-align:right}}
+@media(prefers-reduced-motion:reduce){.lantern-return.is-ringing{animation:none}.lantern-return{transition:none}.flock-bird{animation-duration:.01ms!important}}
