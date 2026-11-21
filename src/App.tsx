@@ -12,7 +12,14 @@ type Project = RegistryProject & { technical_note?: string };
 const projects = (registry.projects as Project[]).filter((project) => project.visible);
 const featured = projects.filter((project) => project.featured).sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99)).slice(0, 5);
 const technical = projects.filter((project) => project.technical_exploration).sort((a, b) => (a.display_order ?? 99) - (b.display_order ?? 99));
-const initialPath = () => window.location.pathname.replace(/\/$/, "") || "/";
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const withBase = (path: string) => `${basePath}${path.startsWith("/") ? path : `/${path}`}` || "/";
+const assetUrl = withBase;
+const initialPath = () => {
+  let pathname = window.location.pathname;
+  if (basePath && pathname.startsWith(basePath)) pathname = pathname.slice(basePath.length) || "/";
+  return pathname.replace(/\/$/, "") || "/";
+};
 
 const skillIcons: Record<string, { slug: string; color: string; fallback: string }> = {
   "C++": { slug: "cplusplus", color: "00599C", fallback: "C+" },
@@ -52,7 +59,7 @@ function Header({ page, onNavigate }: { page: string; onNavigate: (path: string)
     event.preventDefault();
     onNavigate(path);
   };
-  return <header className="topbar content-panel" data-motion-panel><a className="brand" href="/" onClick={go("/")}><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isTechnicalDive ? <><a href="/" onClick={go("/")}>Home</a><a href="/blog" onClick={go("/blog")}>Blog</a></> : isBlog ? <><a href="/" onClick={go("/")}>Home</a><a href="/systems" onClick={go("/systems")}>Technical Dive</a></> : <><a href="#projects">Projects</a><a href="/systems" onClick={go("/systems")}>Technical Dive</a><a href="/blog" onClick={go("/blog")}>Blog</a></>}</nav></header>;
+  return <header className="topbar content-panel" data-motion-panel><a className="brand" href={withBase("/")} onClick={go("/")}><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isTechnicalDive ? <><a href={withBase("/")} onClick={go("/")}>Home</a><a href={withBase("/blog")} onClick={go("/blog")}>Blog</a></> : isBlog ? <><a href={withBase("/")} onClick={go("/")}>Home</a><a href={withBase("/systems")} onClick={go("/systems")}>Technical Dive</a></> : <><a href="#projects">Projects</a><a href={withBase("/systems")} onClick={go("/systems")}>Technical Dive</a><a href={withBase("/blog")} onClick={go("/blog")}>Blog</a></>}</nav></header>;
 }
 
 function ProjectCard({ project, index, detailed = false }: { project: Project; index: number; detailed?: boolean }) {
@@ -98,15 +105,15 @@ function LanternReturnButton() {
         <mask id="lantern-branch-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="941" height="1672"><rect width="941" height="1672" fill="white" /><path d={lanternSilhouette} fill="black" /></mask>
         <mask id="lantern-only-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="941" height="1672"><rect width="941" height="1672" fill="black" /><path d={lanternSilhouette} fill="white" /></mask>
       </defs>
-      <image className="lantern-branch-art" href="/lantern-return-cutout.png" width="941" height="1672" mask="url(#lantern-branch-mask)" />
-      <image className="lantern-movable" href="/lantern-return-cutout.png" width="941" height="1672" mask="url(#lantern-only-mask)" />
+      <image className="lantern-branch-art" href={assetUrl("/lantern-return-cutout.png")} width="941" height="1672" mask="url(#lantern-branch-mask)" />
+      <image className="lantern-movable" href={assetUrl("/lantern-return-cutout.png")} width="941" height="1672" mask="url(#lantern-only-mask)" />
     </svg>
     <span className="lantern-return-halo" aria-hidden="true" />
   </button>;
 }
 
 function SystemsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
-  return <div className="site systems-page"><Header page="/systems" onNavigate={onNavigate} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / TECHNICAL DIVE</p><h1>Technical <em>dive.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/" onClick={(event) => { event.preventDefault(); onNavigate("/"); }}>Back to portfolio ↑</a></footer></div>;
+  return <div className="site systems-page"><Header page="/systems" onNavigate={onNavigate} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / TECHNICAL DIVE</p><h1>Technical <em>dive.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href={withBase("/")} onClick={(event) => { event.preventDefault(); onNavigate("/"); }}>Back to portfolio ↑</a></footer></div>;
 }
 
 export default function App() {
@@ -123,7 +130,7 @@ export default function App() {
     const normalizedPath = nextPath.replace(/\/$/, "") || "/";
     if (normalizedPath === page) return;
     const commitRoute = () => {
-      if (updateHistory) window.history.pushState({}, "", normalizedPath);
+      if (updateHistory) window.history.pushState({}, "", withBase(normalizedPath));
       setPage(normalizedPath);
     };
     const transitionDocument = document as Document & {
@@ -150,20 +157,20 @@ export default function App() {
   const header = <Header page={page} onNavigate={navigate} />;
 
   if (page === "/systems" || page === "/explore") {
-    return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><SystemsPage onNavigate={navigate} /><LanternReturnButton /></>;
+    return <><VantaBirdsBackground backgroundImage={assetUrl(activeBackground.src)} /><SystemsPage onNavigate={navigate} /><LanternReturnButton /></>;
   }
   if (page === "/blog") {
-    return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/" onClick={(event) => { event.preventDefault(); navigate("/"); }}>Back to portfolio ↑</a></footer></div><LanternReturnButton /></>;
+    return <><VantaBirdsBackground backgroundImage={assetUrl(activeBackground.src)} /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href={withBase("/")} onClick={(event) => { event.preventDefault(); navigate("/"); }}>Back to portfolio ↑</a></footer></div><LanternReturnButton /></>;
   }
 
-  return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main id="top">
+  return <><VantaBirdsBackground backgroundImage={assetUrl(activeBackground.src)} /><div className="site">{header}<main id="top">
     <section className="hero content-panel" data-motion-panel>
-      <div className="hero-content"><p className="eyebrow">SOFTWARE · APPLIED MACHINE LEARNING</p><h1>Ujwal Boosala.</h1><p className="hero-copy"><span>Applied machine learning and software development.</span><span>Projects span transformers, generative models, and anomaly detection.</span><span>Hands-on with Python, PyTorch, model evaluation, and web interfaces.</span><span>Focused on turning experiments into clear, useful tools.</span></p><div className="hero-actions"><div className="resume-actions"><a className="secondary-link" href={profile.resumePath} target="_blank" rel="noreferrer"><Eye size={17} /> View résumé</a><a className="download-button" href={profile.resumePath} download aria-label="Download résumé" title="Download résumé"><Download size={18} /></a></div></div><ContactLinks /></div>
+      <div className="hero-content"><p className="eyebrow">SOFTWARE · APPLIED MACHINE LEARNING</p><h1>Ujwal Boosala.</h1><p className="hero-copy"><span>Applied machine learning and software development.</span><span>Projects span transformers, generative models, and anomaly detection.</span><span>Hands-on with Python, PyTorch, model evaluation, and web interfaces.</span><span>Focused on turning experiments into clear, useful tools.</span></p><div className="hero-actions"><div className="resume-actions"><a className="secondary-link" href={assetUrl(profile.resumePath)} target="_blank" rel="noreferrer"><Eye size={17} /> View résumé</a><a className="download-button" href={assetUrl(profile.resumePath)} download aria-label="Download résumé" title="Download résumé"><Download size={18} /></a></div></div><ContactLinks /></div>
     </section>
 
     <SkillsSection />
 
-    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><a className="text-link systems-project-button" href="/systems" onClick={(event) => { event.preventDefault(); navigate("/systems"); }}>Technical Dive <ArrowUpRight size={15} /></a></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
+    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><a className="text-link systems-project-button" href={withBase("/systems")} onClick={(event) => { event.preventDefault(); navigate("/systems"); }}>Technical Dive <ArrowUpRight size={15} /></a></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
 
     <section className="highlights content-panel" data-motion-panel><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span className="content-tile" key={item.title} data-motion-panel>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span className="content-tile" key={item.name} data-motion-panel>{item.name} · {item.provider}</span>)}</div></section>
 
