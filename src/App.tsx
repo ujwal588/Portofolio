@@ -17,6 +17,7 @@ const initialPath = () => window.location.pathname.replace(/\/$/, "") || "/";
 const skillIcons: Record<string, { slug: string; color: string; fallback: string }> = {
   "C++": { slug: "cplusplus", color: "00599C", fallback: "C+" },
   Java: { slug: "openjdk", color: "437291", fallback: "J" },
+  Rust: { slug: "rust", color: "000000", fallback: "Rs" },
   Python: { slug: "python", color: "3776AB", fallback: "Py" },
   NumPy: { slug: "numpy", color: "4DABCF", fallback: "N" },
   Pandas: { slug: "pandas", color: "150458", fallback: "Pd" },
