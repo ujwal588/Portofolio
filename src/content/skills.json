@@ -1,5 +1,5 @@
 [
-  { "group": "Languages", "items": ["C++", "Java", "Python", "Rust"] },
+  { "group": "Languages", "items": ["C++", "Java", "Python", "Rust", "Julia"] },
   { "group": "ML & data", "items": ["NumPy", "Pandas", "Matplotlib", "scikit-learn", "OpenCV", "PyTorch"] },
   { "group": "Backend & tools", "items": ["Flask", "MySQL", "PostgreSQL", "Git", "GitHub", "Jupyter", "Kaggle", "Jira"] }
 ]
