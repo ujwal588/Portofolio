@@ -257,3 +257,8 @@ body{font-size:14px}
 @keyframes portfolio-fade-out{to{opacity:0}}
 @keyframes portfolio-slide-in{from{transform:translateX(100%);opacity:.94}to{transform:translateX(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){::view-transition-old(portfolio-page),::view-transition-new(portfolio-page){animation:none}}
+
+/* Keep skill categories compact and limit each icon row to four items. */
+.skill-groups{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:flex-start;gap:10px}
+.skill-group,.skill-group:last-child{flex:0 0 auto;width:max-content;max-width:100%}
+.skill-icons{display:grid;grid-template-columns:repeat(4,36px);gap:6px}
