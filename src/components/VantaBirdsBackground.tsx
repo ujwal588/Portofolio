@@ -17,8 +17,10 @@ export default function VantaBirdsBackground({ backgroundImage }: { backgroundIm
     let effect: VantaBirdsEffect | undefined;
     let idleNudgeTimer = 0;
     let lastPointerMove = 0;
+    let steeringUntil = 0;
+    let flockFrame = 0;
     const steerWithPointer = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
+      if ((event.pointerType !== "mouse" && event.pointerType !== "pen") || performance.now() < steeringUntil) return;
       const rect = host.getBoundingClientRect();
       lastPointerMove = performance.now();
       effect?.onMouseMove?.(
@@ -31,6 +33,28 @@ export default function VantaBirdsBackground({ backgroundImage }: { backgroundIm
         effect?.onMouseMove?.(0.12 + Math.random() * 0.76, 0.12 + Math.random() * 0.76);
       }
       idleNudgeTimer = window.setTimeout(nudgeWhileIdle, 1400 + Math.random() * 1800);
+    };
+    const sendFlockToTop = () => {
+      if (flockFrame) window.cancelAnimationFrame(flockFrame);
+      const started = performance.now();
+      const duration = 1050;
+      steeringUntil = started + duration + 200;
+      const animateFlock = (now: number) => {
+        const progress = Math.min(1, (now - started) / duration);
+        const eased = progress * progress * (3 - 2 * progress);
+        // Sweep the virtual repeller from below the flock to the top edge so the birds surge upward.
+        const x = 0.5 + Math.sin(progress * Math.PI * 3) * 0.08;
+        const y = 0.96 - eased * 0.9;
+        effect?.onMouseMove?.(x, y);
+        if (progress < 1) {
+          flockFrame = window.requestAnimationFrame(animateFlock);
+        } else {
+          flockFrame = 0;
+          lastPointerMove = performance.now();
+          effect?.onMouseMove?.(0.14 + Math.random() * 0.72, 0.14 + Math.random() * 0.72);
+        }
+      };
+      flockFrame = window.requestAnimationFrame(animateFlock);
     };
     const initialize = async () => {
       try {
@@ -63,6 +87,7 @@ export default function VantaBirdsBackground({ backgroundImage }: { backgroundIm
           quantity: 5,
         });
         window.addEventListener("pointermove", steerWithPointer, { passive: true });
+        window.addEventListener("portfolio:flock-to-top", sendFlockToTop);
         idleNudgeTimer = window.setTimeout(nudgeWhileIdle, 1200);
       } catch (error) {
         // Leave the stylesheet's gentle page-color fallback in place if WebGL is unavailable.
@@ -74,7 +99,9 @@ export default function VantaBirdsBackground({ backgroundImage }: { backgroundIm
     return () => {
       cancelled = true;
       window.removeEventListener("pointermove", steerWithPointer);
+      window.removeEventListener("portfolio:flock-to-top", sendFlockToTop);
       window.clearTimeout(idleNudgeTimer);
+      if (flockFrame) window.cancelAnimationFrame(flockFrame);
       effect?.destroy();
     };
   }, []);

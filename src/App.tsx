@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
-import { ArrowRight, ArrowUp, ArrowUpRight, Download, Eye, Palette } from "lucide-react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { ArrowRight, ArrowUpRight, Download, Eye, Palette } from "lucide-react";
 import VantaBirdsBackground from "./components/VantaBirdsBackground";
 import BackgroundPicker, { BACKGROUNDS } from "./components/BackgroundPicker";
 import profile from "./content/profile.json";
@@ -66,110 +66,26 @@ function SkillsSection() {
   return <section className="skills-section content-panel" id="skills" data-motion-panel><div className="section-head"><div><p className="eyebrow">TOOLS I USE</p><h2>Skills</h2></div></div><div className="skill-groups">{(skills as Array<{ group: string; items: string[] }>).map((group) => <div className="skill-group content-tile" key={group.group} data-motion-panel><h3>{group.group}</h3><div className="skill-icons">{group.items.map((item) => <IconTile name={item} key={item} large />)}</div></div>)}</div></section>;
 }
 
-function ScrollProgressGauge() {
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [returning, setReturning] = useState(false);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const returnTimer = useRef<number | null>(null);
-
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        const root = document.documentElement;
-        const maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - window.innerHeight);
-        setScrollProgress(maxScroll === 0 ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll)));
-      });
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, []);
+function LanternReturnButton() {
+  const [ringing, setRinging] = useState(false);
+  const timer = useRef<number | null>(null);
 
   useEffect(() => () => {
-    if (returnTimer.current !== null) window.clearTimeout(returnTimer.current);
+    if (timer.current !== null) window.clearTimeout(timer.current);
   }, []);
 
-  const scrollToTrackPosition = (clientY: number) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const bounds = track.getBoundingClientRect();
-    const ratio = Math.min(1, Math.max(0, (clientY - bounds.top) / bounds.height));
-    const root = document.documentElement;
-    const maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - window.innerHeight);
-    window.scrollTo({ top: maxScroll * ratio, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-  };
-
-  const onTrackKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const step = event.shiftKey ? 0.2 : 0.06;
-    let next: number | null = null;
-    if (event.key === "ArrowUp" || event.key === "PageUp") next = scrollProgress - step;
-    if (event.key === "ArrowDown" || event.key === "PageDown") next = scrollProgress + step;
-    if (event.key === "Home") next = 0;
-    if (event.key === "End") next = 1;
-    if (next === null) return;
-    event.preventDefault();
-    const root = document.documentElement;
-    const maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - window.innerHeight);
-    window.scrollTo({ top: maxScroll * Math.min(1, Math.max(0, next)), behavior: "smooth" });
-  };
-
-  const scrollToTop = () => {
-    if (returnTimer.current !== null) window.clearTimeout(returnTimer.current);
-    setReturning(true);
+  const sendFlockHome = () => {
+    if (timer.current !== null) window.clearTimeout(timer.current);
+    setRinging(true);
+    window.dispatchEvent(new Event("portfolio:flock-to-top"));
     window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-    returnTimer.current = window.setTimeout(() => setReturning(false), 1100);
+    timer.current = window.setTimeout(() => setRinging(false), 950);
   };
 
-  const remaining = Math.round((1 - scrollProgress) * 100);
-  return <aside className={`fuel-control${returning ? " is-returning" : ""}`} aria-label="Page scroll progress">
-    <svg className="fuel-wire" viewBox="0 0 72 108" preserveAspectRatio="none" aria-hidden="true">
-      <path className="fuel-wire-shadow" d="M48 0v24c0 22 12 21 12 42c0 8-12 12-25 12" />
-      <path className="fuel-wire-line" d="M48 0v24c0 22 12 21 12 42c0 8-12 12-25 12" />
-      <circle className="fuel-wire-joint" cx="48" cy="2" r="3" />
-    </svg>
-    <span className="fuel-caption" aria-hidden="true">SCROLL</span>
-    <div
-      className={`fuel-track${remaining === 100 ? " is-full" : ""}`}
-      ref={trackRef}
-      role="scrollbar"
-      aria-label="Page scroll position"
-      aria-controls="root"
-      aria-orientation="vertical"
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={Math.round(scrollProgress * 100)}
-      aria-valuetext={`${remaining}% of the page remains`}
-      tabIndex={0}
-      onKeyDown={onTrackKeyDown}
-      onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); scrollToTrackPosition(event.clientY); }}
-      onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) scrollToTrackPosition(event.clientY); }}
-    >
-      <span className="fuel-scale fuel-scale-full" aria-hidden="true">TOP</span>
-      <span className="fuel-scale fuel-scale-half" aria-hidden="true">MID</span>
-      <span className="fuel-scale fuel-scale-empty" aria-hidden="true">END</span>
-      <span className="fuel-window" aria-hidden="true">
-        <span className="fuel-liquid" style={{ height: `${remaining}%` }}>
-          <span className="fuel-wave" />
-          <span className="fuel-bubble fuel-bubble-one" />
-          <span className="fuel-bubble fuel-bubble-two" />
-        </span>
-        <span className="fuel-glint" />
-      </span>
-      <span className="fuel-value" aria-hidden="true">{remaining}%</span>
-    </div>
-    <button type="button" className="fuel-refill" onClick={scrollToTop} disabled={scrollProgress < 0.005} aria-label="Scroll to top" title="Return to top">
-      <ArrowUp size={17} strokeWidth={2.2} />
-    </button>
-    <span className="fuel-refill-label" aria-hidden="true">TOP</span>
-  </aside>;
+  return <button type="button" className={`lantern-return${ringing ? " is-ringing" : ""}`} onClick={sendFlockHome} aria-label="Send the birds to the top and return to the top of the page" title="Call the flock to the top">
+    <img src="/lantern-return.jpg" alt="" />
+    <span className="lantern-return-halo" aria-hidden="true" />
+  </button>;
 }
 
 function SystemsPage({ onSystemsClick, onBackgroundClick, transitioning = false }: { onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; onBackgroundClick: () => void; transitioning?: boolean }) {
@@ -303,8 +219,8 @@ export default function App() {
   };
   const openBackgroundPicker = () => setBackgroundPickerOpen(true);
   const header = <Header page={page} onSystemsClick={beginSystemsTransition} onBackgroundClick={openBackgroundPicker} transitioning={transitioning} />;
-  if (page === "/systems" || page === "/explore") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><SystemsPage onSystemsClick={beginSystemsTransition} onBackgroundClick={openBackgroundPicker} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<ScrollProgressGauge /></>;
-  if (page === "/blog") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<ScrollProgressGauge /></>;
+  if (page === "/systems" || page === "/explore") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><SystemsPage onSystemsClick={beginSystemsTransition} onBackgroundClick={openBackgroundPicker} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<LanternReturnButton /></>;
+  if (page === "/blog") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<LanternReturnButton /></>;
 
   return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main id="top">
     <section className="hero content-panel" data-motion-panel>
@@ -318,5 +234,5 @@ export default function App() {
     <section className="highlights content-panel" data-motion-panel><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span className="content-tile" key={item.title} data-motion-panel>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span className="content-tile" key={item.name} data-motion-panel>{item.name} · {item.provider}</span>)}</div></section>
 
     <section className="education content-panel" data-motion-panel><p className="eyebrow">EDUCATION</p>{profile.education.map((item) => <p key={item.institution}><b>{item.qualification}</b><span>{item.institution} · {item.dates}</span></p>)}</section>
-  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<ScrollProgressGauge /></>;
+  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<LanternReturnButton /></>;
 }
