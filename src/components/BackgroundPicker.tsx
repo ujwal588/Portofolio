@@ -3,15 +3,14 @@ import { Check, ChevronDown, ChevronUp, Palette, X } from "lucide-react";
 
 export type PortfolioBackground = { id: string; name: string; mood: string; src: string };
 export const BACKGROUNDS: PortfolioBackground[] = [
-  { id: "scene-01", name: "Misty River", mood: "Quiet ink wash", src: "/backgrounds/scene-01.png" },
-  { id: "scene-02", name: "Autumn Pavilion", mood: "Warm watercolour", src: "/backgrounds/scene-02.png" },
-  { id: "scene-03", name: "Blue Mountain Valley", mood: "Cool and atmospheric", src: "/backgrounds/scene-03.png" },
-  { id: "scene-04", name: "Cloud Pavilion", mood: "Soft monochrome", src: "/backgrounds/scene-04.png" },
-  { id: "scene-05", name: "Vermilion Peaks", mood: "A bold red landscape", src: "/backgrounds/scene-05.png" },
+  { id: "scene-01", name: "Crimson Blossom", mood: "A dramatic red moonlit scene", src: "/backgrounds/scene-01.jpg" },
+  { id: "scene-02", name: "Azure Cloud Lake", mood: "Water, mountain, and mist", src: "/backgrounds/scene-02.jpg" },
+  { id: "scene-03", name: "Pavilion in the Mist", mood: "A quiet monochrome wash", src: "/backgrounds/scene-03.jpg" },
+  { id: "scene-04", name: "Bamboo River", mood: "Sunlit bamboo and still water", src: "/backgrounds/scene-04.jpg" },
 ];
 
 type Props = { open: boolean; selectedId: string; onClose: () => void; onApply: (id: string) => void };
-const offsets = [-2, -1, 0, 1, 2];
+const offsets = [-1, 0, 1];
 
 export default function BackgroundPicker({ open, selectedId, onClose, onApply }: Props) {
   const selectedIndex = Math.max(0, BACKGROUNDS.findIndex((item) => item.id === selectedId));
@@ -51,9 +50,9 @@ export default function BackgroundPicker({ open, selectedId, onClose, onApply }:
         <button className="background-picker-close" type="button" onClick={onClose} aria-label="Close background selector"><X size={18} /></button>
       </div>
       <div className="background-picker-preview" style={{ backgroundImage: `linear-gradient(90deg,rgba(30,28,32,.56),rgba(30,28,32,.05)),url("${active.src}")` }}>
-        <span>PREVIEW · {String(draftIndex + 1).padStart(2, "0")} / 05</span><strong>{active.name}</strong><small>{active.mood}</small>
+        <span>PREVIEW · {String(draftIndex + 1).padStart(2, "0")} / {String(BACKGROUNDS.length).padStart(2, "0")}</span><strong>{active.name}</strong><small>{active.mood}</small>
       </div>
-      <p className="background-picker-hint">Scroll the selector, use ↑ / ↓, or choose a scene.</p>
+      <p className="background-picker-hint">Scroll the wheel or use ↑ / ↓ to rotate through scenes.</p>
       <div className="background-wheel-shell">
         <button className="background-wheel-arrow" type="button" onClick={() => step(-1)} aria-label="Previous background"><ChevronUp size={17} /></button>
         <div className="background-wheel-list" role="listbox" aria-label="Background choices" tabIndex={0} onWheel={handleWheel} onKeyDown={handleKeys}>
