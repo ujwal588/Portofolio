@@ -251,8 +251,7 @@ body{font-size:14px}
 
 /* Keep the animated scene limited to page content; the background and lantern stay in place. */
 .site{view-transition-name:portfolio-page}
-::view-transition-old(portfolio-page){animation:portfolio-slide-out 420ms cubic-bezier(.22,.72,.2,1) both}
+::view-transition-old(portfolio-page){animation:none;opacity:0}
 ::view-transition-new(portfolio-page){animation:portfolio-slide-in 420ms cubic-bezier(.22,.72,.2,1) both}
-@keyframes portfolio-slide-out{to{transform:translateX(-100%);opacity:.84}}
 @keyframes portfolio-slide-in{from{transform:translateX(100%);opacity:.84}to{transform:translateX(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){::view-transition-old(portfolio-page),::view-transition-new(portfolio-page){animation:none}}
