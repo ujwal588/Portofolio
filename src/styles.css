@@ -225,12 +225,12 @@ body{font-size:14px}
 .vanta-background canvas{position:relative;z-index:1;display:block;width:100%!important;height:100%!important;pointer-events:none}
 @media(max-width:600px){.vanta-background{background-position:center center}}
 .site{position:relative;z-index:1}
-.content-panel{position:relative;background:rgba(255,253,251,.015)!important;border:1px solid rgba(255,255,255,.34);backdrop-filter:blur(1px) saturate(1.02);-webkit-backdrop-filter:blur(1px) saturate(1.02);box-shadow:inset 0 1px 0 #ffffff91,inset 0 -1px 0 #a96d700a,0 14px 38px #54425d0d}
+.content-panel{position:relative;background:rgba(246,226,231,.24)!important;border:1px solid rgba(255,250,249,.58);backdrop-filter:blur(1px) saturate(1.08);-webkit-backdrop-filter:blur(1px) saturate(1.08);box-shadow:inset 0 1px 0 #ffffffb3,inset 0 -1px 0 #a96d7010,0 14px 38px #54425d12}
 .content-panel::before{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;background:linear-gradient(128deg,rgba(255,255,255,.018),rgba(255,255,255,.006) 38%,rgba(238,222,237,.006) 72%,rgba(255,255,255,.014)),radial-gradient(ellipse at 12% 0%,rgba(255,255,255,.018),transparent 48%)}
 .content-panel::after{content:"";position:absolute;inset:1px;z-index:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 1px 0 #ffffff4d,inset 1px 0 0 #ffffff22}
 .content-panel>*{position:relative;z-index:1}
 /* Nested cards use a denser frosted surface than the near-clear outer panels. */
-.content-panel .content-tile{background:rgba(255,253,251,.12)!important;border:1px solid rgba(255,255,255,.52);backdrop-filter:blur(1px) saturate(1.02);-webkit-backdrop-filter:blur(1px) saturate(1.02);box-shadow:inset 0 1px 0 #ffffff9c,0 8px 20px #54425d0b}
+.content-panel .content-tile{background:rgba(255,241,237,.42)!important;border:1px solid rgba(255,250,248,.72);backdrop-filter:blur(1px) saturate(1.08);-webkit-backdrop-filter:blur(1px) saturate(1.08);box-shadow:inset 0 1px 0 #ffffffc7,0 8px 20px #54425d10}
 .fuel-track.is-full .fuel-window{top:3px}
 .fuel-track{cursor:grab}
 .fuel-track:active{cursor:grabbing}
