@@ -79,5 +79,5 @@ export default function VantaBirdsBackground({ backgroundImage }: { backgroundIm
     };
   }, []);
 
-  return <div ref={hostRef} className="vanta-background" style={{ backgroundImage: `linear-gradient(180deg,rgba(247,243,248,.13),rgba(247,243,248,.22)),url("${backgroundImage}")` }} aria-hidden="true" />;
+  return <div ref={hostRef} className="vanta-background" style={{ backgroundImage: `linear-gradient(180deg,rgba(247,243,248,.04),rgba(247,243,248,.08)),url("${backgroundImage}")` }} aria-hidden="true" />;
 }
