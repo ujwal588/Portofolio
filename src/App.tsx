@@ -63,7 +63,11 @@ function ProjectCard({ project, index, detailed = false }: { project: Project; i
 }
 
 function ContactLinks() {
-  return <div className="profile-links" id="contact"><a href={profile.githubUrl} target="_blank" rel="noreferrer"><b className="service-icon">GH</b> GitHub <ArrowUpRight size={14} /></a>{profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noreferrer"><b className="service-icon">in</b> LinkedIn <ArrowUpRight size={14} /></a>}{profile.email && <a href={`mailto:${profile.email}`}>Email <ArrowUpRight size={14} /></a>}</div>;
+  return <div className="profile-links" id="contact" aria-label="Contact links">
+    <a className="contact-icon" href={profile.githubUrl} target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub"><img src="https://cdn.simpleicons.org/github/65566a" alt="" /></a>
+    {profile.linkedinUrl && <a className="contact-icon" href={profile.linkedinUrl} target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn"><img src="https://cdn.simpleicons.org/linkedin/65566a" alt="" /></a>}
+    {profile.email && <a className="contact-icon" href={`mailto:${profile.email}`} aria-label="Email" title="Email"><img src="https://cdn.simpleicons.org/gmail/65566a" alt="" /></a>}
+  </div>;
 }
 
 function SkillsSection() {
@@ -85,8 +89,16 @@ function LanternReturnButton() {
     timer.current = window.setTimeout(() => setRinging(false), 950);
   };
 
+  const lanternSilhouette = "M382 290 L374 495 Q355 510 339 526 Q326 542 318 570 L227 630 Q202 642 195 665 L154 707 Q139 729 142 750 Q144 774 172 790 Q193 804 226 809 L206 840 Q184 858 175 890 Q158 927 159 964 L160 1215 Q160 1250 181 1270 L207 1279 L207 1342 Q207 1376 239 1384 L299 1384 L299 1420 Q300 1450 330 1450 L485 1450 Q513 1445 516 1417 L518 1384 L594 1384 Q623 1378 624 1345 L622 1020 Q623 982 610 953 L602 886 Q597 853 575 837 L559 810 Q589 801 612 785 Q644 761 645 735 Q646 711 625 691 L539 631 Q524 603 517 576 Q504 548 477 535 Q460 519 443 508 Q430 490 430 460 L430 290 Z";
   return <button type="button" className={`lantern-return${ringing ? " is-ringing" : ""}`} onClick={sendFlockHome} aria-label="Return to top">
-    <img src="/lantern-return-cutout.png" alt="" />
+    <svg className="lantern-return-art" viewBox="0 0 941 1672" aria-hidden="true" focusable="false">
+      <defs>
+        <mask id="lantern-branch-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="941" height="1672"><rect width="941" height="1672" fill="white" /><path d={lanternSilhouette} fill="black" /></mask>
+        <mask id="lantern-only-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="941" height="1672"><rect width="941" height="1672" fill="black" /><path d={lanternSilhouette} fill="white" /></mask>
+      </defs>
+      <image className="lantern-branch-art" href="/lantern-return-cutout.png" width="941" height="1672" mask="url(#lantern-branch-mask)" />
+      <image className="lantern-movable" href="/lantern-return-cutout.png" width="941" height="1672" mask="url(#lantern-only-mask)" />
+    </svg>
     <span className="lantern-return-halo" aria-hidden="true" />
   </button>;
 }

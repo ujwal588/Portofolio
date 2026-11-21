@@ -241,10 +241,11 @@ body{font-size:14px}
 
 /* Lantern return control blends into the landscape; the cutout keeps the artwork's paper field transparent. */
 .lantern-return{position:fixed;z-index:90;right:14px;bottom:16px;width:88px;height:264px;padding:0;overflow:visible;border:0;border-radius:0;background:transparent;cursor:pointer;isolation:isolate;filter:drop-shadow(0 8px 12px rgba(40,43,44,.18));transition:filter .2s}
-.lantern-return img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:contain;object-position:center;border:0;border-radius:0;background:transparent}
+.lantern-return-art{position:relative;z-index:1;display:block;width:100%;height:100%;overflow:visible}
+.lantern-movable{transform-box:view-box;transform-origin:410px 890px}
 .lantern-return-halo{position:absolute;z-index:0;inset:25% 12%;border-radius:50%;background:radial-gradient(ellipse,rgba(195,194,187,.54),rgba(195,194,187,.2) 45%,transparent 75%);filter:blur(8px);pointer-events:none}
 .lantern-return:hover,.lantern-return:focus-visible{filter:drop-shadow(0 10px 16px rgba(40,43,44,.28)) drop-shadow(0 0 8px rgba(240,120,98,.38));outline:none}
-.lantern-return.is-ringing{animation:lantern-ring 1.15s cubic-bezier(.36,.07,.19,.97) both;filter:drop-shadow(0 0 12px rgba(240,120,98,.58)) drop-shadow(0 8px 12px rgba(40,43,44,.18))}
+.lantern-return.is-ringing .lantern-movable{animation:lantern-ring 1.15s cubic-bezier(.36,.07,.19,.97) both}
 @keyframes lantern-ring{0%,100%{transform:rotate(0) scale(1)}10%{transform:rotate(-8deg) scale(1.04)}20%{transform:rotate(9deg) scale(1.06)}32%{transform:rotate(-7deg) scale(1.04)}44%{transform:rotate(6deg) scale(1.025)}58%{transform:rotate(-3deg) scale(1.015)}72%{transform:rotate(2deg) scale(1.005)}}
 @media(max-width:600px){.lantern-return{right:8px;bottom:10px;width:64px;height:192px}}
 @media(prefers-reduced-motion:reduce){.lantern-return.is-ringing{animation:none}.lantern-return{transition:none}.flock-bird{animation-duration:.01ms!important}}
@@ -275,3 +276,12 @@ body{font-size:14px}
 .hero-copy,.project-title-row p,.project-card>p,.blog-card p,.technical-note{color:#514753}
 .eyebrow,.card-meta{color:#6f6273}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.content-panel{background:rgba(255,253,251,.94)!important}.content-panel .content-tile{background:rgba(255,253,252,.98)!important}}
+
+/* Keep the Languages tile as wide as its peers while using two icon columns. */
+.skill-groups .skill-group,.skill-groups .skill-group:last-child{width:194px}
+.skill-groups .skill-group:first-child .skill-icons{grid-template-columns:repeat(2,36px)}
+.profile-links{gap:9px}
+.contact-icon{width:36px;height:36px;display:grid!important;place-items:center;border:1px solid rgba(255,255,255,.82);border-radius:12px;background:rgba(255,253,252,.9);color:#65566a!important;box-shadow:inset 0 1px 0 #fff,0 4px 12px #43334b10;transition:transform .18s,border-color .18s,background .18s}
+.contact-icon:hover,.contact-icon:focus-visible{transform:translateY(-2px);border-color:#cf9da0;background:#fff9f7;outline:none}
+.contact-icon svg{width:18px;height:18px}
+.contact-icon img{width:18px;height:18px;object-fit:contain}
