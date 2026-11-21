@@ -83,7 +83,7 @@ function LanternReturnButton() {
   };
 
   return <button type="button" className={`lantern-return${ringing ? " is-ringing" : ""}`} onClick={sendFlockHome} aria-label="Send the birds to the top and return to the top of the page" title="Call the flock to the top">
-    <img src="/lantern-return.jpg" alt="" />
+    <img src="/lantern-return-cutout.png" alt="" />
     <span className="lantern-return-halo" aria-hidden="true" />
   </button>;
 }
