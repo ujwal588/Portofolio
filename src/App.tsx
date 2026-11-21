@@ -43,10 +43,14 @@ function IconTile({ name, large = false }: { name: string; large?: boolean }) {
   return <span className={`skill-icon${large ? " skill-icon-large" : ""}`} tabIndex={0} aria-label={name} title={name}><img src={`https://cdn.simpleicons.org/${icon.slug}/${icon.color}`} alt="" onError={(event) => { event.currentTarget.hidden = true; event.currentTarget.parentElement?.classList.add("fallback-visible"); }} /><span className="icon-fallback">{icon.fallback}</span><span className="skill-tooltip">{name}</span></span>;
 }
 
-function Header({ page, onSystemsClick, transitioning = false }: { page: string; onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
+function Header({ page, onNavigate }: { page: string; onNavigate: (path: string) => void }) {
   const isTechnicalDive = page === "/systems" || page === "/explore";
   const isBlog = page === "/blog";
-  return <header className="topbar content-panel" data-motion-panel><a className="brand" href="/"><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isTechnicalDive ? <><a href="/">Home</a><a href="/blog">Blog</a></> : isBlog ? <><a href="/">Home</a><button type="button" className="systems-nav-button" onClick={onSystemsClick} disabled={transitioning}>Technical Dive</button></> : <><a href="#projects">Projects</a><button type="button" className={`systems-nav-button${transitioning ? " is-transitioning" : ""}`} onClick={onSystemsClick} disabled={transitioning}>Technical Dive</button><a href="/blog">Blog</a></>}</nav></header>;
+  const go = (path: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    onNavigate(path);
+  };
+  return <header className="topbar content-panel" data-motion-panel><a className="brand" href="/" onClick={go("/")}><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isTechnicalDive ? <><a href="/" onClick={go("/")}>Home</a><a href="/blog" onClick={go("/blog")}>Blog</a></> : isBlog ? <><a href="/" onClick={go("/")}>Home</a><a href="/systems" onClick={go("/systems")}>Technical Dive</a></> : <><a href="#projects">Projects</a><a href="/systems" onClick={go("/systems")}>Technical Dive</a><a href="/blog" onClick={go("/blog")}>Blog</a></>}</nav></header>;
 }
 
 function ProjectCard({ project, index, detailed = false }: { project: Project; index: number; detailed?: boolean }) {
@@ -87,131 +91,56 @@ function LanternReturnButton() {
   </button>;
 }
 
-function SystemsPage({ onSystemsClick, transitioning = false }: { onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
-  return <div className="site systems-page"><Header page="/systems" onSystemsClick={onSystemsClick} transitioning={transitioning} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / TECHNICAL DIVE</p><h1>Technical <em>dive.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>;
-}
-
-type ButtonRect = { left: number; top: number; width: number; height: number };
-
-function SystemsPortal({ buttonRect, onComplete }: { buttonRect: ButtonRect; onComplete: () => void }) {
-  const revealRef = useRef<HTMLDivElement>(null);
-  const coreRef = useRef<HTMLDivElement>(null);
-  const cloneRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const reveal = revealRef.current;
-    const core = coreRef.current;
-    const clone = cloneRef.current;
-    if (!reveal || !core || !clone) return;
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const timers: number[] = [];
-    const delay = (ms: number) => new Promise<void>((resolve) => { timers.push(window.setTimeout(resolve, ms)); });
-    let cancelled = false;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const run = async () => {
-      if (reducedMotion) {
-        reveal.style.clipPath = "circle(150vmax at 50% 50%)";
-        await delay(0);
-        if (!cancelled) onComplete();
-        return;
-      }
-
-      // Stage 1: lift the measured button copy from its exact on-screen position.
-      clone.animate(
-        [{ transform: "translateY(0) scale(1)", boxShadow: "0 0 0 transparent" }, { transform: "translateY(-6px) scale(1.15)", boxShadow: "0 14px 30px #17201855" }],
-        { duration: 200, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" },
-      );
-
-      await delay(100);
-      if (cancelled) return;
-      // Stage 2: open the compact aperture with a spring-like overshoot.
-      reveal.animate(
-        [{ clipPath: "circle(0px at 50% 50%)" }, { clipPath: "circle(70px at 50% 50%)" }],
-        { duration: 250, easing: "cubic-bezier(.2,.8,.25,1)", fill: "forwards" },
-      );
-      core.animate(
-        [
-          { transform: "translate(-50%,-50%) scale(0)", opacity: 0 },
-          { transform: "translate(-50%,-50%) scale(1.12)", opacity: 1, offset: 0.72 },
-          { transform: "translate(-50%,-50%) scale(.97)", opacity: 1, offset: 0.9 },
-          { transform: "translate(-50%,-50%) scale(1)", opacity: 1 },
-        ],
-        { duration: 250, easing: "cubic-bezier(.2,.8,.25,1)", fill: "forwards" },
-      );
-
-      await delay(200);
-      if (cancelled) return;
-      // Stage 3: arc the copied button toward the portal center, then fade it.
-      const dx = window.innerWidth / 2 - buttonRect.left - buttonRect.width / 2;
-      const dy = window.innerHeight / 2 - buttonRect.top - buttonRect.height / 2;
-      clone.animate(
-        [
-          { transform: "translate(0,-6px) scale(1.15)", opacity: 1, offset: 0 },
-          { transform: `translate(${dx * 0.62 - 12}px,${dy * 0.56 - 20}px) rotate(6deg) scale(.68)`, opacity: 0.95, offset: 0.62 },
-          { transform: `translate(${dx}px,${dy}px) rotate(12deg) scale(.1)`, opacity: 0 },
-        ],
-        { duration: 300, easing: "cubic-bezier(.45,0,.7,.4)", fill: "forwards" },
-      );
-
-      await delay(250);
-      if (cancelled) return;
-      // Stage 4: reveal the already-mounted Technical Dive page without scaling its content.
-      const expansion = reveal.animate(
-        [{ clipPath: "circle(70px at 50% 50%)" }, { clipPath: "circle(150vmax at 50% 50%)" }],
-        { duration: 500, easing: "cubic-bezier(.76,0,.24,1)", fill: "forwards" },
-      );
-      try { await expansion.finished; } catch { return; }
-      if (!cancelled) onComplete();
-    };
-
-    void run();
-    return () => {
-      cancelled = true;
-      timers.forEach(window.clearTimeout);
-      document.body.style.overflow = originalOverflow;
-      reveal.getAnimations().forEach((animation) => animation.cancel());
-      core.getAnimations().forEach((animation) => animation.cancel());
-      clone.getAnimations().forEach((animation) => animation.cancel());
-    };
-  }, [buttonRect, onComplete]);
-
-  return <div className="systems-transition-layer" aria-hidden="true">
-    <div className="systems-reveal" ref={revealRef}><SystemsPage onSystemsClick={() => undefined} /></div>
-    <div className="portal-core" ref={coreRef} />
-    <button className="systems-button-clone" ref={cloneRef} tabIndex={-1} style={{ left: buttonRect.left, top: buttonRect.top, width: buttonRect.width, height: buttonRect.height }}>Technical Dive</button>
-  </div>;
+function SystemsPage({ onNavigate }: { onNavigate: (path: string) => void }) {
+  return <div className="site systems-page"><Header page="/systems" onNavigate={onNavigate} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / TECHNICAL DIVE</p><h1>Technical <em>dive.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/" onClick={(event) => { event.preventDefault(); onNavigate("/"); }}>Back to portfolio ↑</a></footer></div>;
 }
 
 export default function App() {
   const [page, setPage] = useState(initialPath);
-  const [buttonRect, setButtonRect] = useState<ButtonRect | null>(null);
-  const [transitioning, setTransitioning] = useState(false);
-  const [backgroundId, setBackgroundId] = useState(() => {
+  const [backgroundId] = useState(() => {
     try {
       const stored = localStorage.getItem("portfolio-background");
       return BACKGROUNDS.some((item) => item.id === stored) ? stored as string : BACKGROUNDS[0].id;
     } catch { return BACKGROUNDS[0].id; }
   });
   const activeBackground = BACKGROUNDS.find((item) => item.id === backgroundId) || BACKGROUNDS[0];
-  useEffect(() => { const update = () => setPage(initialPath()); window.addEventListener("popstate", update); return () => window.removeEventListener("popstate", update); }, []);
-  const beginSystemsTransition = (event: MouseEvent<HTMLButtonElement>) => {
-    if (transitioning) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    setButtonRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
-    setTransitioning(true);
+
+  const setRouteWithTransition = (nextPath: string, updateHistory: boolean) => {
+    const normalizedPath = nextPath.replace(/\/$/, "") || "/";
+    if (normalizedPath === page) return;
+    const commitRoute = () => {
+      if (updateHistory) window.history.pushState({}, "", normalizedPath);
+      setPage(normalizedPath);
+    };
+    const transitionDocument = document as Document & {
+      startViewTransition?: (callback: () => void) => { finished: Promise<void> };
+    };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !transitionDocument.startViewTransition) {
+      commitRoute();
+      return;
+    }
+    try {
+      void transitionDocument.startViewTransition(commitRoute).finished.catch(() => undefined);
+    } catch {
+      commitRoute();
+    }
   };
-  const completeSystemsTransition = () => {
-    window.history.pushState({}, "", "/systems");
-    setPage("/systems");
-    setButtonRect(null);
-    setTransitioning(false);
-  };
-  const header = <Header page={page} onSystemsClick={beginSystemsTransition} transitioning={transitioning} />;
-  if (page === "/systems" || page === "/explore") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<LanternReturnButton /></>;
-  if (page === "/blog") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<LanternReturnButton /></>;
+
+  useEffect(() => {
+    const onPopState = () => setRouteWithTransition(initialPath(), false);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [page]);
+
+  const navigate = (path: string) => setRouteWithTransition(path, true);
+  const header = <Header page={page} onNavigate={navigate} />;
+
+  if (page === "/systems" || page === "/explore") {
+    return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><SystemsPage onNavigate={navigate} /><LanternReturnButton /></>;
+  }
+  if (page === "/blog") {
+    return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/" onClick={(event) => { event.preventDefault(); navigate("/"); }}>Back to portfolio ↑</a></footer></div><LanternReturnButton /></>;
+  }
 
   return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main id="top">
     <section className="hero content-panel" data-motion-panel>
@@ -220,10 +149,10 @@ export default function App() {
 
     <SkillsSection />
 
-    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><button type="button" className={`text-link systems-project-button${transitioning ? " is-transitioning" : ""}`} onClick={beginSystemsTransition} disabled={transitioning}>Technical Dive <ArrowUpRight size={15} /></button></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
+    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><a className="text-link systems-project-button" href="/systems" onClick={(event) => { event.preventDefault(); navigate("/systems"); }}>Technical Dive <ArrowUpRight size={15} /></a></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
 
     <section className="highlights content-panel" data-motion-panel><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span className="content-tile" key={item.title} data-motion-panel>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span className="content-tile" key={item.name} data-motion-panel>{item.name} · {item.provider}</span>)}</div></section>
 
     <section className="education content-panel" data-motion-panel><p className="eyebrow">EDUCATION</p>{profile.education.map((item) => <p key={item.institution}><b>{item.qualification}</b><span>{item.institution} · {item.dates}</span></p>)}</section>
-  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<LanternReturnButton /></>;
+  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div><LanternReturnButton /></>;
 }
