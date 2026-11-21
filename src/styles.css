@@ -268,7 +268,7 @@ body{font-size:14px}
 .site{max-width:760px}
 .hero{grid-template-columns:minmax(0,1fr);min-height:unset}
 .project-grid,.technical-list{grid-template-columns:minmax(0,1fr)}
-.skill-groups .skill-group:first-child .skill-icons{grid-template-columns:repeat(2,36px)}
+.skill-groups .skill-group:first-child .skill-icons{grid-template-columns:repeat(4,36px)}
 
 /* Improve contrast over artwork while keeping a blurred view of it through the glass. */
 .content-panel{background:rgba(255,253,251,.82)!important;backdrop-filter:blur(5px) saturate(1.04);-webkit-backdrop-filter:blur(5px) saturate(1.04);box-shadow:inset 0 1px 0 #ffffffd9,0 14px 38px #43334b18}
@@ -279,7 +279,7 @@ body{font-size:14px}
 
 /* Keep the Languages tile as wide as its peers while using two icon columns. */
 .skill-groups .skill-group,.skill-groups .skill-group:last-child{width:194px}
-.skill-groups .skill-group:first-child .skill-icons{grid-template-columns:repeat(2,36px)}
+.skill-groups .skill-group:first-child .skill-icons{grid-template-columns:repeat(4,36px)}
 .profile-links{gap:9px}
 .contact-icon{width:36px;height:36px;display:grid!important;place-items:center;border:1px solid rgba(255,255,255,.82);border-radius:12px;background:rgba(255,253,252,.9);color:#65566a!important;box-shadow:inset 0 1px 0 #fff,0 4px 12px #43334b10;transition:transform .18s,border-color .18s,background .18s}
 .contact-icon:hover,.contact-icon:focus-visible{transform:translateY(-2px);border-color:#cf9da0;background:#fff9f7;outline:none}
