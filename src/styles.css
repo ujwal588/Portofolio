@@ -238,20 +238,6 @@ body{font-size:14px}
 
 /* Centered landscape selector and compact top-left trigger. */
 .topbar{gap:18px}
-.background-picker-trigger{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;min-height:34px;padding:0 11px;border:1px solid rgba(255,255,255,.76);border-radius:999px;background:rgba(255,253,251,.58);color:#584d5b;font:500 10px 'DM Sans',sans-serif;box-shadow:inset 0 1px 0 #ffffffb5,0 4px 12px #54425d0b;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer;transition:background .18s,transform .18s,border-color .18s}
-.background-picker-trigger:hover,.background-picker-trigger:focus-visible{background:rgba(255,253,251,.9);border-color:#cfaeb4;transform:translateY(-1px);outline:none}
-.background-picker-overlay{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;background:rgba(31,29,34,.3);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);animation:background-picker-fade .18s ease-out}
-.background-picker{width:min(410px,100%);max-height:calc(100dvh - 24px);overflow:auto;padding:17px;border:1px solid rgba(255,255,255,.8);border-radius:24px;background:rgba(250,247,249,.92);color:#3d3443;box-shadow:0 28px 90px #211a2d38,inset 0 1px 0 #ffffff;backdrop-filter:blur(24px) saturate(1.12);-webkit-backdrop-filter:blur(24px) saturate(1.12);animation:background-picker-rise .22s cubic-bezier(.2,.8,.2,1)}
-.background-picker-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.background-picker-heading .eyebrow{margin:0 0 3px;font-size:8px}
-.background-picker-heading h2{margin:0;font:500 20px/1.15 'DM Sans',sans-serif;color:#3d3443}
-.background-picker-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:12px;background:#f2e6e7;color:#a96d70}
-.background-picker-close{margin-left:auto;width:34px;height:34px;display:grid;place-items:center;border:1px solid #e7dbe4;border-radius:50%;background:#fffdfb;color:#685c69;cursor:pointer}
-.background-picker-preview{height:78px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;padding:14px 16px;margin-bottom:12px;border:1px solid #ffffffa0;border-radius:16px;background-size:cover;background-position:center;color:#fff;text-shadow:0 1px 8px #17161a9c;box-shadow:inset 0 0 0 1px #ffffff28}
-.background-picker-preview span{font:500 8px 'DM Mono',monospace;letter-spacing:.13em;opacity:.88}
-.background-picker-preview strong{font:600 16px 'DM Sans',sans-serif}
-.background-picker-preview small{font:400 10px 'DM Sans',sans-serif;opacity:.9}
-.background-picker-hint{margin:0 0 5px;color:#807481;font-size:10px}
 .background-wheel-shell{display:grid;grid-template-rows:19px auto 19px;justify-items:center;gap:3px;padding:6px;border:1px solid #e8dfe8;border-radius:18px;background:rgba(247,243,248,.32);box-shadow:inset 0 2px 8px #58425d0c}
 .background-wheel-arrow{display:grid;place-items:center;width:34px;height:19px;border:0;border-radius:8px;background:transparent;color:#806e80;cursor:pointer}
 .background-wheel-arrow:hover,.background-wheel-arrow:focus-visible{background:#f0e5eb;color:#a96d70;outline:none}
@@ -264,37 +250,21 @@ body{font-size:14px}
 .background-wheel-check{color:#a96d70}
 .background-wheel-option.is-active{border-color:#bd8b91;background:rgba(255,253,251,.78);box-shadow:0 5px 14px #a96d701d,inset 0 0 0 1px #ffffff;transform:scale(1)!important}
 .background-wheel-list:focus-visible .background-wheel-option.is-active{outline:2px solid #a96d70;outline-offset:2px}
-.background-picker-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
-.background-picker-actions button{min-height:34px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 14px;border-radius:11px;font:600 10px 'DM Sans',sans-serif;cursor:pointer;transition:transform .18s,background .18s}
-.background-picker-cancel{border:1px solid #e5d9e4;background:rgba(255,253,251,.78);color:#635866}
-.background-picker-apply{border:1px solid #9d646b;background:#a96d70;color:#fff;box-shadow:0 5px 13px #a96d7035}
-.background-picker-actions button:hover{transform:translateY(-1px)}
-.background-picker-apply:hover{background:#8f5b62}
-@keyframes background-picker-fade{from{opacity:0}to{opacity:1}}
-@keyframes background-picker-rise{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:600px){
   .topbar{gap:8px}
-  .background-picker-trigger{width:34px;padding:0;gap:0}
-  .background-picker-trigger span{display:none}
   .topbar nav{gap:12px}
-  .background-picker-overlay{padding:12px}
-  .background-picker{padding:14px;border-radius:20px}
-  .background-picker-preview{height:72px}
   .background-wheel-option{gap:7px;padding-inline:6px}
   .background-wheel-option img{width:48px;height:30px;flex-basis:48px}
   .background-wheel-name{font-size:10px}
 }
-@media(prefers-reduced-motion:reduce){.background-picker-overlay,.background-picker{animation:none}.background-picker-trigger,.background-wheel-option,.background-picker-actions button{transition:none}}
 
 
 /* Lantern return control blends into the landscape; the cutout keeps the artwork's paper field transparent. */
 .lantern-return{position:fixed;z-index:90;right:14px;bottom:16px;width:88px;height:264px;padding:0;overflow:visible;border:0;border-radius:0;background:transparent;cursor:pointer;isolation:isolate;filter:drop-shadow(0 8px 12px rgba(40,43,44,.18));transition:filter .2s}
 .lantern-return img{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:contain;object-position:center;border:0;border-radius:0;background:transparent}
 .lantern-return-halo{position:absolute;z-index:0;inset:25% 12%;border-radius:50%;background:radial-gradient(ellipse,rgba(195,194,187,.54),rgba(195,194,187,.2) 45%,transparent 75%);filter:blur(8px);pointer-events:none}
-.lantern-return::after{content:"Go to top";position:absolute;right:calc(100% + 12px);bottom:2px;white-space:nowrap;color:#b83e4d;text-align:right;font:18px/1.15 "Comic Sans MS","Comic Sans","Comic Neue",sans-serif;text-shadow:0 1px 3px rgba(255,247,238,.95);opacity:0;transform:translateX(8px) rotate(-4deg);transition:opacity .2s,transform .2s;pointer-events:none}
-.lantern-return:hover::after,.lantern-return:focus-visible::after{opacity:1;transform:translateX(0) rotate(-4deg)}
 .lantern-return:hover,.lantern-return:focus-visible{filter:drop-shadow(0 10px 16px rgba(40,43,44,.28)) drop-shadow(0 0 8px rgba(240,120,98,.38));outline:none}
 .lantern-return.is-ringing{animation:lantern-ring 1.15s cubic-bezier(.36,.07,.19,.97) both;filter:drop-shadow(0 0 12px rgba(240,120,98,.58)) drop-shadow(0 8px 12px rgba(40,43,44,.18))}
 @keyframes lantern-ring{0%,100%{transform:rotate(0) scale(1)}10%{transform:rotate(-8deg) scale(1.04)}20%{transform:rotate(9deg) scale(1.06)}32%{transform:rotate(-7deg) scale(1.04)}44%{transform:rotate(6deg) scale(1.025)}58%{transform:rotate(-3deg) scale(1.015)}72%{transform:rotate(2deg) scale(1.005)}}
-@media(max-width:600px){.lantern-return{right:8px;bottom:10px;width:64px;height:192px}.lantern-return::after{right:calc(100% + 7px);bottom:0;font-size:16px;text-align:right}}
+@media(max-width:600px){.lantern-return{right:8px;bottom:10px;width:64px;height:192px}}
 @media(prefers-reduced-motion:reduce){.lantern-return.is-ringing{animation:none}.lantern-return{transition:none}.flock-bird{animation-duration:.01ms!important}}

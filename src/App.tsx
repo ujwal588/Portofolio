@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { ArrowRight, ArrowUpRight, Download, Eye, Palette } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Download, Eye } from "lucide-react";
 import VantaBirdsBackground from "./components/VantaBirdsBackground";
-import BackgroundPicker, { BACKGROUNDS } from "./components/BackgroundPicker";
+import { BACKGROUNDS } from "./components/BackgroundPicker";
 import profile from "./content/profile.json";
 import skills from "./content/skills.json";
 import registry from "./content/project-registry.json";
@@ -43,10 +43,10 @@ function IconTile({ name, large = false }: { name: string; large?: boolean }) {
   return <span className={`skill-icon${large ? " skill-icon-large" : ""}`} tabIndex={0} aria-label={name} title={name}><img src={`https://cdn.simpleicons.org/${icon.slug}/${icon.color}`} alt="" onError={(event) => { event.currentTarget.hidden = true; event.currentTarget.parentElement?.classList.add("fallback-visible"); }} /><span className="icon-fallback">{icon.fallback}</span><span className="skill-tooltip">{name}</span></span>;
 }
 
-function Header({ page, onSystemsClick, onBackgroundClick, transitioning = false }: { page: string; onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; onBackgroundClick: () => void; transitioning?: boolean }) {
-  const isSystems = page === "/systems" || page === "/explore";
+function Header({ page, onSystemsClick, transitioning = false }: { page: string; onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
+  const isTechnicalDive = page === "/systems" || page === "/explore";
   const isBlog = page === "/blog";
-  return <header className="topbar content-panel" data-motion-panel><button type="button" className="background-picker-trigger" onClick={onBackgroundClick} aria-label="Change background" title="Change background"><Palette size={15} /><span>Change background</span></button><a className="brand" href="/"><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isSystems ? <><a href="/">Home</a><a href="/blog">Blog</a></> : isBlog ? <><a href="/">Home</a><button type="button" className="systems-nav-button" onClick={onSystemsClick} disabled={transitioning}>Systems</button></> : <><a href="#projects">Projects</a><button type="button" className={`systems-nav-button${transitioning ? " is-transitioning" : ""}`} onClick={onSystemsClick} disabled={transitioning}>Systems</button><a href="/blog">Blog</a></>}</nav></header>;
+  return <header className="topbar content-panel" data-motion-panel><a className="brand" href="/"><span className="brand-mark">UB</span><span>UJWAL BOOSALA<small>SOFTWARE · MACHINE LEARNING</small></span></a><nav>{isTechnicalDive ? <><a href="/">Home</a><a href="/blog">Blog</a></> : isBlog ? <><a href="/">Home</a><button type="button" className="systems-nav-button" onClick={onSystemsClick} disabled={transitioning}>Technical Dive</button></> : <><a href="#projects">Projects</a><button type="button" className={`systems-nav-button${transitioning ? " is-transitioning" : ""}`} onClick={onSystemsClick} disabled={transitioning}>Technical Dive</button><a href="/blog">Blog</a></>}</nav></header>;
 }
 
 function ProjectCard({ project, index, detailed = false }: { project: Project; index: number; detailed?: boolean }) {
@@ -81,14 +81,14 @@ function LanternReturnButton() {
     timer.current = window.setTimeout(() => setRinging(false), 950);
   };
 
-  return <button type="button" className={`lantern-return${ringing ? " is-ringing" : ""}`} onClick={sendFlockHome} aria-label="Go to top">
+  return <button type="button" className={`lantern-return${ringing ? " is-ringing" : ""}`} onClick={sendFlockHome} aria-label="Return to top">
     <img src="/lantern-return-cutout.png" alt="" />
     <span className="lantern-return-halo" aria-hidden="true" />
   </button>;
 }
 
-function SystemsPage({ onSystemsClick, onBackgroundClick, transitioning = false }: { onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; onBackgroundClick: () => void; transitioning?: boolean }) {
-  return <div className="site systems-page"><Header page="/systems" onSystemsClick={onSystemsClick} onBackgroundClick={onBackgroundClick} transitioning={transitioning} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / SYSTEMS</p><h1>Systems <em>work.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>;
+function SystemsPage({ onSystemsClick, transitioning = false }: { onSystemsClick: (event: MouseEvent<HTMLButtonElement>) => void; transitioning?: boolean }) {
+  return <div className="site systems-page"><Header page="/systems" onSystemsClick={onSystemsClick} transitioning={transitioning} /><main className="explore-page content-panel" data-motion-panel><p className="eyebrow">PROJECTS / TECHNICAL DIVE</p><h1>Technical <em>dive.</em></h1><div className="technical-list">{technical.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} detailed />)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>;
 }
 
 type ButtonRect = { left: number; top: number; width: number; height: number };
@@ -158,7 +158,7 @@ function SystemsPortal({ buttonRect, onComplete }: { buttonRect: ButtonRect; onC
 
       await delay(250);
       if (cancelled) return;
-      // Stage 4: reveal the already-mounted Systems page without scaling its content.
+      // Stage 4: reveal the already-mounted Technical Dive page without scaling its content.
       const expansion = reveal.animate(
         [{ clipPath: "circle(70px at 50% 50%)" }, { clipPath: "circle(150vmax at 50% 50%)" }],
         { duration: 500, easing: "cubic-bezier(.76,0,.24,1)", fill: "forwards" },
@@ -179,9 +179,9 @@ function SystemsPortal({ buttonRect, onComplete }: { buttonRect: ButtonRect; onC
   }, [buttonRect, onComplete]);
 
   return <div className="systems-transition-layer" aria-hidden="true">
-    <div className="systems-reveal" ref={revealRef}><SystemsPage onSystemsClick={() => undefined} onBackgroundClick={() => undefined} /></div>
+    <div className="systems-reveal" ref={revealRef}><SystemsPage onSystemsClick={() => undefined} /></div>
     <div className="portal-core" ref={coreRef} />
-    <button className="systems-button-clone" ref={cloneRef} tabIndex={-1} style={{ left: buttonRect.left, top: buttonRect.top, width: buttonRect.width, height: buttonRect.height }}>Systems</button>
+    <button className="systems-button-clone" ref={cloneRef} tabIndex={-1} style={{ left: buttonRect.left, top: buttonRect.top, width: buttonRect.width, height: buttonRect.height }}>Technical Dive</button>
   </div>;
 }
 
@@ -189,7 +189,6 @@ export default function App() {
   const [page, setPage] = useState(initialPath);
   const [buttonRect, setButtonRect] = useState<ButtonRect | null>(null);
   const [transitioning, setTransitioning] = useState(false);
-  const [backgroundPickerOpen, setBackgroundPickerOpen] = useState(false);
   const [backgroundId, setBackgroundId] = useState(() => {
     try {
       const stored = localStorage.getItem("portfolio-background");
@@ -197,12 +196,6 @@ export default function App() {
     } catch { return BACKGROUNDS[0].id; }
   });
   const activeBackground = BACKGROUNDS.find((item) => item.id === backgroundId) || BACKGROUNDS[0];
-  const applyBackground = (id: string) => {
-    setBackgroundId(id);
-    try { localStorage.setItem("portfolio-background", id); } catch { /* Keep the selection for this session. */ }
-    setBackgroundPickerOpen(false);
-  };
-  const picker = <BackgroundPicker open={backgroundPickerOpen} selectedId={backgroundId} onClose={() => setBackgroundPickerOpen(false)} onApply={applyBackground} />;
   useEffect(() => { const update = () => setPage(initialPath()); window.addEventListener("popstate", update); return () => window.removeEventListener("popstate", update); }, []);
   const beginSystemsTransition = (event: MouseEvent<HTMLButtonElement>) => {
     if (transitioning) return;
@@ -216,10 +209,9 @@ export default function App() {
     setButtonRect(null);
     setTransitioning(false);
   };
-  const openBackgroundPicker = () => setBackgroundPickerOpen(true);
-  const header = <Header page={page} onSystemsClick={beginSystemsTransition} onBackgroundClick={openBackgroundPicker} transitioning={transitioning} />;
-  if (page === "/systems" || page === "/explore") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><SystemsPage onSystemsClick={beginSystemsTransition} onBackgroundClick={openBackgroundPicker} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<LanternReturnButton /></>;
-  if (page === "/blog") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<LanternReturnButton /></>;
+  const header = <Header page={page} onSystemsClick={beginSystemsTransition} transitioning={transitioning} />;
+  if (page === "/systems" || page === "/explore") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><SystemsPage onSystemsClick={beginSystemsTransition} transitioning={transitioning} />{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<LanternReturnButton /></>;
+  if (page === "/blog") return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main className="explore-page blog-page content-panel" data-motion-panel><p className="eyebrow">WRITING / SAMPLE LAYOUT</p><h1>Blog <em>previews.</em></h1><div className="blog-list">{(blogSamples as Array<{ title: string; category: string; excerpt: string }>).map((post, index) => <article className={`blog-card content-tile card-${index % 3}`} key={post.title} data-motion-panel><div className="card-meta"><span>{post.category}</span><span>LAYOUT SAMPLE · NOT PUBLISHED</span></div><h2>{post.title}</h2><p>{post.excerpt}</p><span className="blog-preview-label">SAMPLE POST PREVIEW</span></article>)}</div></main><footer className="footer"><span>Ujwal Boosala</span><a href="/">Back to portfolio ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<LanternReturnButton /></>;
 
   return <><VantaBirdsBackground backgroundImage={activeBackground.src} /><div className="site">{header}<main id="top">
     <section className="hero content-panel" data-motion-panel>
@@ -228,10 +220,10 @@ export default function App() {
 
     <SkillsSection />
 
-    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><button type="button" className={`text-link systems-project-button${transitioning ? " is-transitioning" : ""}`} onClick={beginSystemsTransition} disabled={transitioning}>Systems <ArrowUpRight size={15} /></button></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
+    <section className="projects-section content-panel" id="projects" data-motion-panel><div className="section-head"><div><p className="eyebrow">SELECTED WORK</p><h2>Projects</h2></div><button type="button" className={`text-link systems-project-button${transitioning ? " is-transitioning" : ""}`} onClick={beginSystemsTransition} disabled={transitioning}>Technical Dive <ArrowUpRight size={15} /></button></div><div className="project-grid">{featured.map((project, i) => <ProjectCard key={project.repository} project={project} index={i} />)}</div></section>
 
     <section className="highlights content-panel" data-motion-panel><p className="eyebrow">HIGHLIGHTS</p><div className="highlight-list">{profile.achievements.map((item) => <span className="content-tile" key={item.title} data-motion-panel>{item.detail} <b>{item.title}</b></span>)}{profile.training.map((item) => <span className="content-tile" key={item.name} data-motion-panel>{item.name} · {item.provider}</span>)}</div></section>
 
     <section className="education content-panel" data-motion-panel><p className="eyebrow">EDUCATION</p>{profile.education.map((item) => <p key={item.institution}><b>{item.qualification}</b><span>{item.institution} · {item.dates}</span></p>)}</section>
-  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}{picker}<LanternReturnButton /></>;
+  </main><footer className="footer"><span>Ujwal Boosala</span><a href="#top">Back to top ↑</a></footer></div>{buttonRect && <SystemsPortal buttonRect={buttonRect} onComplete={completeSystemsTransition} />}<LanternReturnButton /></>;
 }
