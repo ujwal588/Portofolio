@@ -265,7 +265,7 @@ body{font-size:14px}
 .skill-icons{display:grid;grid-template-columns:repeat(4,36px);gap:6px}
 
 /* Align the page sections to the compact skills layout on desktop. */
-.site{max-width:730px}
+.site{max-width:760px}
 .hero{grid-template-columns:minmax(0,1fr);min-height:unset}
 .project-grid,.technical-list{grid-template-columns:minmax(0,1fr)}
 .skill-groups .skill-group:first-child .skill-icons{grid-template-columns:repeat(2,36px)}
