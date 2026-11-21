@@ -6,7 +6,7 @@ type VantaBirdsEffect = {
 };
 
 /** Persistent decorative Vanta canvas. The CSS page color remains visible beneath it. */
-export default function VantaBirdsBackground() {
+export default function VantaBirdsBackground({ backgroundImage }: { backgroundImage: string }) {
   const hostRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,5 +79,5 @@ export default function VantaBirdsBackground() {
     };
   }, []);
 
-  return <div ref={hostRef} className="vanta-background" aria-hidden="true" />;
+  return <div ref={hostRef} className="vanta-background" style={{ backgroundImage: `linear-gradient(180deg,rgba(247,243,248,.13),rgba(247,243,248,.22)),url("${backgroundImage}")` }} aria-hidden="true" />;
 }

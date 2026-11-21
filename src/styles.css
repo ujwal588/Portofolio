@@ -221,10 +221,9 @@ body{font-size:14px}
 @media(max-width:600px){.topbar.content-panel{min-height:62px;margin:9px 0 14px;padding:9px 13px;border-radius:999px}}
 
 /* Vanta Birds remains animated above the supplied ink-wash landscape backdrop. */
-.vanta-background{position:fixed;inset:0;z-index:0;width:100vw;height:100vh;height:100dvh;overflow:hidden;pointer-events:none;background:#d8d5ce}
-.vanta-background::before{content:"";position:absolute;inset:0;z-index:0;background-image:linear-gradient(180deg,rgba(247,243,248,.13),rgba(247,243,248,.22)),url("/ink-wash-landscape.jpg");background-position:center;background-size:cover;background-repeat:no-repeat}
+.vanta-background{position:fixed;inset:0;z-index:0;width:100vw;height:100vh;height:100dvh;overflow:hidden;pointer-events:none;background-color:#d8d5ce;background-position:center;background-size:cover;background-repeat:no-repeat}
 .vanta-background canvas{position:relative;z-index:1;display:block;width:100%!important;height:100%!important;pointer-events:none}
-@media(max-width:600px){.vanta-background::before{background-position:center center}}
+@media(max-width:600px){.vanta-background{background-position:center center}}
 .site{position:relative;z-index:1}
 .content-panel{position:relative;background:rgba(255,253,251,.055)!important;border:1px solid rgba(255,255,255,.46);backdrop-filter:blur(5px) saturate(1.04);-webkit-backdrop-filter:blur(5px) saturate(1.04);box-shadow:inset 0 1px 0 #ffffff91,inset 0 -1px 0 #a96d700a,0 14px 38px #54425d0d}
 .content-panel::before{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;pointer-events:none;background:linear-gradient(128deg,rgba(255,255,255,.018),rgba(255,255,255,.006) 38%,rgba(238,222,237,.006) 72%,rgba(255,255,255,.014)),radial-gradient(ellipse at 12% 0%,rgba(255,255,255,.018),transparent 48%)}
@@ -236,3 +235,53 @@ body{font-size:14px}
 .fuel-track{cursor:grab}
 .fuel-track:active{cursor:grabbing}
 @media(max-width:600px){.fuel-track.is-full .fuel-window{top:3px}}
+
+/* Centered landscape selector and compact top-left trigger. */
+.topbar{gap:18px}
+.background-picker-trigger{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:0 0 auto;min-height:34px;padding:0 11px;border:1px solid rgba(255,255,255,.76);border-radius:999px;background:rgba(255,253,251,.58);color:#584d5b;font:500 10px 'DM Sans',sans-serif;box-shadow:inset 0 1px 0 #ffffffb5,0 4px 12px #54425d0b;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer;transition:background .18s,transform .18s,border-color .18s}
+.background-picker-trigger:hover,.background-picker-trigger:focus-visible{background:rgba(255,253,251,.9);border-color:#cfaeb4;transform:translateY(-1px);outline:none}
+.background-picker-overlay{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;background:rgba(31,29,34,.3);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);animation:background-picker-fade .18s ease-out}
+.background-picker{width:min(410px,100%);max-height:calc(100dvh - 24px);overflow:auto;padding:17px;border:1px solid rgba(255,255,255,.8);border-radius:24px;background:rgba(250,247,249,.92);color:#3d3443;box-shadow:0 28px 90px #211a2d38,inset 0 1px 0 #ffffff;backdrop-filter:blur(24px) saturate(1.12);-webkit-backdrop-filter:blur(24px) saturate(1.12);animation:background-picker-rise .22s cubic-bezier(.2,.8,.2,1)}
+.background-picker-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.background-picker-heading .eyebrow{margin:0 0 3px;font-size:8px}
+.background-picker-heading h2{margin:0;font:500 20px/1.15 'DM Sans',sans-serif;color:#3d3443}
+.background-picker-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:12px;background:#f2e6e7;color:#a96d70}
+.background-picker-close{margin-left:auto;width:34px;height:34px;display:grid;place-items:center;border:1px solid #e7dbe4;border-radius:50%;background:#fffdfb;color:#685c69;cursor:pointer}
+.background-picker-preview{height:78px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;padding:14px 16px;margin-bottom:12px;border:1px solid #ffffffa0;border-radius:16px;background-size:cover;background-position:center;color:#fff;text-shadow:0 1px 8px #17161a9c;box-shadow:inset 0 0 0 1px #ffffff28}
+.background-picker-preview span{font:500 8px 'DM Mono',monospace;letter-spacing:.13em;opacity:.88}
+.background-picker-preview strong{font:600 16px 'DM Sans',sans-serif}
+.background-picker-preview small{font:400 10px 'DM Sans',sans-serif;opacity:.9}
+.background-picker-hint{margin:0 0 5px;color:#807481;font-size:10px}
+.background-wheel-shell{display:grid;grid-template-rows:19px auto 19px;justify-items:center;gap:3px;padding:6px;border:1px solid #e8dfe8;border-radius:18px;background:rgba(247,243,248,.6);box-shadow:inset 0 2px 8px #58425d0c}
+.background-wheel-arrow{display:grid;place-items:center;width:34px;height:19px;border:0;border-radius:8px;background:transparent;color:#806e80;cursor:pointer}
+.background-wheel-arrow:hover,.background-wheel-arrow:focus-visible{background:#f0e5eb;color:#a96d70;outline:none}
+.background-wheel-list{width:100%;display:flex;flex-direction:column;gap:5px;outline:none;overscroll-behavior:contain;touch-action:pan-y}
+.background-wheel-option{width:100%;height:40px;min-height:40px;display:flex;align-items:center;gap:10px;padding:4px 9px;border:1px solid rgba(224,214,224,.68);border-radius:12px;background:rgba(255,253,251,.68);color:#574c5c;text-align:left;cursor:pointer;transition:transform .18s,border-color .18s,background .18s,opacity .18s}
+.background-wheel-option img{width:54px;height:32px;flex:0 0 54px;object-fit:cover;border-radius:8px;box-shadow:0 2px 6px #3b344117}
+.background-wheel-number{font:500 8px 'DM Mono',monospace;color:#9b899c}
+.background-wheel-name{min-width:0;flex:1;font:600 11px 'DM Sans',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.background-wheel-name small{display:block;margin-top:2px;color:#887d8b;font:400 8px 'DM Sans',sans-serif}
+.background-wheel-check{color:#a96d70}
+.background-wheel-option.is-active{border-color:#bd8b91;background:rgba(255,253,251,.97);box-shadow:0 5px 14px #a96d701d,inset 0 0 0 1px #ffffff;transform:scale(1)!important}
+.background-wheel-list:focus-visible .background-wheel-option.is-active{outline:2px solid #a96d70;outline-offset:2px}
+.background-picker-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.background-picker-actions button{min-height:34px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 14px;border-radius:11px;font:600 10px 'DM Sans',sans-serif;cursor:pointer;transition:transform .18s,background .18s}
+.background-picker-cancel{border:1px solid #e5d9e4;background:rgba(255,253,251,.78);color:#635866}
+.background-picker-apply{border:1px solid #9d646b;background:#a96d70;color:#fff;box-shadow:0 5px 13px #a96d7035}
+.background-picker-actions button:hover{transform:translateY(-1px)}
+.background-picker-apply:hover{background:#8f5b62}
+@keyframes background-picker-fade{from{opacity:0}to{opacity:1}}
+@keyframes background-picker-rise{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:600px){
+  .topbar{gap:8px}
+  .background-picker-trigger{width:34px;padding:0;gap:0}
+  .background-picker-trigger span{display:none}
+  .topbar nav{gap:12px}
+  .background-picker-overlay{padding:12px}
+  .background-picker{padding:14px;border-radius:20px}
+  .background-picker-preview{height:72px}
+  .background-wheel-option{gap:7px;padding-inline:6px}
+  .background-wheel-option img{width:48px;height:30px;flex-basis:48px}
+  .background-wheel-name{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.background-picker-overlay,.background-picker{animation:none}.background-picker-trigger,.background-wheel-option,.background-picker-actions button{transition:none}}
